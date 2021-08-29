@@ -1,1 +1,1 @@
-A smale PDF-editor writen in python using TKinter for the GUI
+A small PDF-editor written in python using TKinter for the GUI
