@@ -1,5 +1,5 @@
 # genarate a requirements for the project
-name: auto generate requirements.txt
+name: Auto requirements.txt
 on:
   push:
     branches: [ master ]
@@ -13,7 +13,3 @@ jobs:
         id: selftest
 
         uses: ryan-rozario/pipreqs-action-cpy@master
-
-        with:
-          PROJECT_PATH: pyditor
-          REQUIREMENT_PATH: pyditor/requirements.txt
