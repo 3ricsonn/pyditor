@@ -1,5 +1,5 @@
 # genarate a requirements for the project
-name: Integration Test
+name: auto generate requirements.txt
 on:
   push:
     branches: [ master ]
