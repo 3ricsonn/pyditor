@@ -46,7 +46,7 @@ class ScrollFrame(tk.Frame):
             "<Leave>", self.on_leave
         )  # unbind wheel events when the cursor leaves the control
 
-        # perform an initial stretch on render, 
+        # perform an initial stretch on render,
         # otherwise the scroll region has a tiny border until the first resize
         self.on_frame_configure(None)
 
