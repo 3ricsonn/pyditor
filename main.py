@@ -33,10 +33,16 @@ class MultiplePageViewer(ScrollFrame):
             # convert to a displayable tk-image
             tkImg = ImageTk.PhotoImage(scaleImg)
 
-            labelImg = tk.Label(master=self.viewPort, text=f"Page {i}", image=tkImg, compound="top", padx=3)
+            labelImg = tk.Label(
+                master=self.viewPort,
+                text=f"Page {i}",
+                image=tkImg,
+                compound="top",
+                padx=3,
+            )
             labelImg.image = tkImg
             labelImg.pack(pady=5, padx=5)
-            
+
             # bind an event whenever a page is clicked to select it
             labelImg.bind("<Button-1>", func=self.add_page_to_selection)
             labelImg.bind("<Control-Button-1>", func=self.select_multiple_pages)
@@ -54,13 +60,13 @@ class MultiplePageViewer(ScrollFrame):
 
         self.selection.clear()
 
-    def select_page(self, event:tk.Event) -> None:
+    def select_page(self, event: tk.Event) -> None:
         self.clear_selection()
 
         event.widget.config(bg="blue")
         self.selection.append(event.widget["text"])
 
-    def select_multiple_pages(self, event:tk.Event) -> None:
+    def select_multiple_pages(self, event: tk.Event) -> None:
         event.widget.config(bg="blue")
         self.selection.append(event.widget["text"])
 
@@ -76,11 +82,11 @@ class PyditorApplication(tk.Frame):
         # -- create toolbar panel--
         self.toolbarPanel = tk.PanedWindow(master=self, orient=tk.VERTICAL)
         self.toolbarPanel.pack(expand=True, fill="both")
-        
+
         # -- create toolbar frame
         self.toolbarFrame = tk.Frame(master=self.toolbarPanel, bg="red")
         self.toolbarPanel.add(self.toolbarFrame)
-        
+
         # -- create page-view-bar panel --
         self.pageViewerPanel = tk.PanedWindow(master=self, orient=tk.HORIZONTAL)
         self.toolbarPanel.add(self.pageViewerPanel)
@@ -90,34 +96,39 @@ class PyditorApplication(tk.Frame):
 
     def load_components_view(self) -> None:
         self.clear_frame()
-        
+
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
         toolbar.pack(pady=10)
 
         self.leftPageViewer = MultiplePageViewer(parent=self.pageViewbarPanel)
         self.pageViewbarPanel.add(self.leftPageViewer)
 
-        editor = tk.Label(master=self.pageViewbarPanel, text="single_page_editor", bg="blue")
+        editor = tk.Label(
+            master=self.pageViewbarPanel, text="single_page_editor", bg="blue"
+        )
         self.pageViewbarPanel.add(editor)
 
         self.pageViewbarPanel.update()
         self.pageViewbarPanel.sash_place(0, 180, 1)
-        
+
         # display already loaded document
         if self.PDFDocument:
             self.leftPageView.load_pages(self.PDFDocument)
-        
 
     def load_components_edit(self):
         self.clear_frame()
 
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
         toolbar.pack(pady=10)
-        
-        left = tk.Label(master=self.pageViewbarPanel, text="selected_page_view", bg="green")
+
+        left = tk.Label(
+            master=self.pageViewbarPanel, text="selected_page_view", bg="green"
+        )
         self.pageViewbarPanel.add(left)
 
-        editor = tk.Label(master=self.pageViewbarPanel, text="page_arrangement_editor", bg="blue")
+        editor = tk.Label(
+            master=self.pageViewbarPanel, text="page_arrangement_editor", bg="blue"
+        )
         self.pageViewbarPanel.add(editor)
 
         self.pageViewbarPanel.update()
@@ -129,8 +140,11 @@ class PyditorApplication(tk.Frame):
 
     def open_file(self):
         """opens a filedialog to open the to editing pdf and convert it to a 'fitz.Document'"""
-        pdf_file = askopenfilename(title="Choose your PDF you want to edit:", filetypes=[("PDF-Files", "*.pdf")])
-        
+        pdf_file = askopenfilename(
+            title="Choose your PDF you want to edit:",
+            filetypes=[("PDF-Files", "*.pdf")],
+        )
+
         if pdf_file:
             self.PDFDocument = fitz.Document(pdf_file)
 
