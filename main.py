@@ -159,11 +159,9 @@ class PyditorApplication(tk.Frame):
 
     def save_file(self):
         """saves the edited pdf file using the metadata title as name"""
-        pass
 
     def save_file_name(self):
         """saves the edited pdf-file asking for a name"""
-        pass
 
 
 def print_sash_pos():
