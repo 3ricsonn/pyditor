@@ -7,6 +7,7 @@ from widgets import ScrollFrame
 
 
 class MultiplePageViewer(ScrollFrame):
+    """scrollable Frame  to display and select pages of an pdf document"""
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
