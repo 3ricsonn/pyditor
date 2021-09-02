@@ -111,6 +111,7 @@ class PyditorApplication(tk.Frame):
         self.PDFDocument: fitz.Document = fitz.Document()
 
     def load_components_view(self) -> None:
+        """Load the components for page-viewer"""
         self.clear_frame()
 
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
@@ -132,6 +133,7 @@ class PyditorApplication(tk.Frame):
             self.leftPageView.load_pages(self.PDFDocument)
 
     def load_components_edit(self):
+        """Load the components for page-editor"""
         self.clear_frame()
 
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
@@ -151,11 +153,12 @@ class PyditorApplication(tk.Frame):
         self.pageViewbarPanel.sash_place(0, 180, 1)
 
     def clear_frame(self):
+        """Removes all widget within the frame"""
         for widget in self.pageViewbarPanel.winfo_children():
             widget.destroy()
 
     def open_file(self):
-        """Opens a filedialog to select a pdf-file and convert it to a 'fitz.Document'"""
+        """Opens a filedialog and convert selected pdf-file to a 'fitz.Document'"""
         pdf_file = askopenfilename(
             title="Choose your PDF you want to edit:",
             filetypes=[("PDF-Files", "*.pdf")],
@@ -179,6 +182,7 @@ class PyditorApplication(tk.Frame):
 
 
 def print_sash_pos():
+    """Print position of sashs for debugging"""
     print(f"1.: {app.toolbarPanel.sash_coord(0)}")
     print(f"2.: {app.toolbarPanel.sash_coord(1)}")
 
@@ -186,7 +190,7 @@ def print_sash_pos():
 if __name__ == "__main__":
     # create the window and do basic configuration
     rootWindow = tk.Tk()
-    rootWindow.title("Pyditor - edit PDFs")  # TODO: more meaningful name
+    rootWindow.title("Pyditor - edit PDFs")
     rootWindow.geometry("1200x1300")
 
     # creating and packing the Main Application
