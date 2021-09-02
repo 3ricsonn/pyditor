@@ -7,7 +7,7 @@ from widgets import ScrollFrame
 
 
 class MultiplePageViewer(ScrollFrame):
-    """scrollable Frame  to display and select pages of an pdf document"""
+    """Scrollable Frame  to display and select pages of an pdf document"""
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
@@ -15,7 +15,7 @@ class MultiplePageViewer(ScrollFrame):
         self.selection = []
 
     def load_pages(self, document: fitz.Document) -> None:
-        """displays all pages of the document verticaly"""
+        """Displays all pages of the document verticaly"""
         # clear viewPort frame
         self.clear()
 
@@ -54,26 +54,26 @@ class MultiplePageViewer(ScrollFrame):
             self.pages.append(labelImg)
 
     def clear(self) -> None:
-        """removes all widget within the frame"""
+        """Removes all widget within the frame"""
         for widget in self.viewPort.winfo_children():
             widget.destroy()
 
     def clear_selection(self) -> None:
-        """remove selected pages from selection and reset page background"""
+        """Remove selected pages from selection and reset page background"""
         for widget in self.viewPort.winfo_children():
             widget.config(bg="#cecfd0")
 
         self.selection.clear()
 
     def select_page(self, event: tk.Event) -> None:
-        """select page"""
+        """Select page"""
         self.clear_selection()
 
         event.widget.config(bg="blue")
         self.selection.append(event.widget["text"])
 
     def select_multiple_pages(self, event: tk.Event) -> None:
-        """add page to selection"""
+        """Add page to selection"""
         event.widget.config(bg="blue")
         self.selection.append(event.widget["text"])
 
@@ -152,7 +152,7 @@ class PyditorApplication(tk.Frame):
             widget.destroy()
 
     def open_file(self):
-        """opens a filedialog to select a pdf-file and convert it to a 'fitz.Document'"""
+        """Opens a filedialog to select a pdf-file and convert it to a 'fitz.Document'"""
         pdf_file = askopenfilename(
             title="Choose your PDF you want to edit:",
             filetypes=[("PDF-Files", "*.pdf")],
@@ -169,10 +169,10 @@ class PyditorApplication(tk.Frame):
             self.leftPageViewer.load_pages(self.PDFDocument)
 
     def save_file(self):
-        """saves the edited pdf file using the metadata title as name"""
+        """Saves the edited pdf file using the metadata title as name"""
  
     def save_file_name(self):
-        """saves the edited pdf-file asking for a name"""
+        """Saves the edited pdf-file asking for a name"""
 
 
 def print_sash_pos():
