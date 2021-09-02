@@ -58,18 +58,21 @@ class MultiplePageViewer(ScrollFrame):
             widget.destroy()
 
     def clear_selection(self) -> None:
+        """remove selected pages from selection and reset page background"""
         for widget in self.viewPort.winfo_children():
             widget.config(bg="#cecfd0")
 
         self.selection.clear()
 
     def select_page(self, event: tk.Event) -> None:
+        """select page"""
         self.clear_selection()
 
         event.widget.config(bg="blue")
         self.selection.append(event.widget["text"])
 
     def select_multiple_pages(self, event: tk.Event) -> None:
+        """add page to selection"""
         event.widget.config(bg="blue")
         self.selection.append(event.widget["text"])
 
