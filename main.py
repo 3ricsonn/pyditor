@@ -41,7 +41,6 @@ class MultiplePageViewer(ScrollFrame):
                 compound="top",
                 padx=3,
             )
-
             labelImg.image = tkImg
             labelImg.pack(pady=5, padx=5)
 
