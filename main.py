@@ -8,6 +8,7 @@ from widgets import ScrollFrame
 
 class MultiplePageViewer(ScrollFrame):
     """Scrollable Frame  to display and select pages of an pdf document"""
+
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
@@ -97,11 +98,13 @@ class PyditorApplication(tk.Frame):
         # -- create page-view-bar panel --
         self.pageViewerPanel = tk.PanedWindow(master=self, orient=tk.HORIZONTAL)
         self.toolbarPanel.add(self.pageViewerPanel)
-        
+
         # == components definitions ==
         # -- pdf-page-viewer --
-        self.leftPageViewer: MultiplePageViewer = None  # scrollable Frame displaying the pages of document
-        
+        self.leftPageViewer: MultiplePageViewer = (
+            None  # scrollable Frame displaying the pages of document
+        )
+
         # -- pdf-page-editor --
 
         # create placeholder document
@@ -170,7 +173,7 @@ class PyditorApplication(tk.Frame):
 
     def save_file(self):
         """Saves the edited pdf file using the metadata title as name"""
- 
+
     def save_file_name(self):
         """Saves the edited pdf-file asking for a name"""
 
