@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
-# from PIL import Image, ImageTk
-# import fitz
+from PIL import Image, ImageTk
+import fitz
 
 from widgets import ScrollFrame
 
