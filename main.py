@@ -94,10 +94,9 @@ class PyditorApplication(tk.Frame):
         self.pageViewerPanel = tk.PanedWindow(master=self, orient=tk.HORIZONTAL)
         self.toolbarPanel.add(self.pageViewerPanel)
         
-        
         # == components definitions ==
         # -- pdf-page-viewer --
-        self.leftPageViewer: MultiplePageViewer = None # scrollable Frame to display all pages of a document
+        self.leftPageViewer: MultiplePageViewer = None  # scrollable Frame displaying the pages of document
         
         # -- pdf-page-editor --
 
