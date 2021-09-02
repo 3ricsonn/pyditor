@@ -44,7 +44,8 @@ class ScrollFrame(tk.Frame):
         canvas_width = event.width
         self.canvas.itemconfig(self.canvas_window, width=canvas_width)
 
-    def on_mouse_wheel(self, event):  # cross platform scroll wheel event
+    def on_mouse_wheel(self, event):
+        """cross platform scroll wheel event"""
         if platform.system() == 'Windows':
             self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         elif platform.system() == 'Darwin':
@@ -55,14 +56,16 @@ class ScrollFrame(tk.Frame):
             elif event.num == 5:
                 self.canvas.yview_scroll(1, "units")
 
-    def on_enter(self, event):  # bind wheel events when the cursor enters the control
+    def on_enter(self, event):
+        """bind wheel events when the cursor enters the control"""
         if platform.system() == 'Linux':
             self.canvas.bind_all("<Button-4>", self.on_mouse_wheel)
             self.canvas.bind_all("<Button-5>", self.on_mouse_wheel)
         else:
             self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)
 
-    def on_leave(self, event):  # unbind wheel events when the cursor leaves the control
+    def on_leave(self, event):
+        """unbind wheel events when the cursor leaves the control"""
         if platform.system() == 'Linux':
             self.canvas.unbind_all("<Button-4>")
             self.canvas.unbind_all("<Button-5>")
