@@ -27,7 +27,8 @@ class MultiplePageViewer(ScrollFrame):
             # rescale image to fit in the frame
             scale = (self.viewPort.winfo_width() - 16) / img.size[0]
             if scale <= 0:
-                raise AssertionError
+                raise ValueError("scale == {}".formate(scale))
+
             scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 
             # convert to a displayable tk-image
@@ -40,6 +41,7 @@ class MultiplePageViewer(ScrollFrame):
                 compound="top",
                 padx=3,
             )
+
             labelImg.image = tkImg
             labelImg.pack(pady=5, padx=5)
 
