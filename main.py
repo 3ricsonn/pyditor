@@ -7,6 +7,8 @@ from widgets import ScrollFrame
 
 
 class MultiplePageViewer(ScrollFrame):
+    """Scrollable Frame  to display and select pages of an pdf document"""
+
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
@@ -14,7 +16,7 @@ class MultiplePageViewer(ScrollFrame):
         self.selection = []
 
     def load_pages(self, document: fitz.Document) -> None:
-        """displays all pages of the document verticaly"""
+        """Displays all pages of the document verticaly"""
         # clear viewPort frame
         self.clear()
 
@@ -53,23 +55,26 @@ class MultiplePageViewer(ScrollFrame):
             self.pages.append(labelImg)
 
     def clear(self) -> None:
-        """removes all widget within the frame"""
+        """Removes all widget within the frame"""
         for widget in self.viewPort.winfo_children():
             widget.destroy()
 
     def clear_selection(self) -> None:
+        """Remove selected pages from selection and reset page background"""
         for widget in self.viewPort.winfo_children():
             widget.config(bg="#cecfd0")
 
         self.selection.clear()
 
     def select_page(self, event: tk.Event) -> None:
+        """Select page"""
         self.clear_selection()
 
         event.widget.config(bg="blue")
         self.selection.append(event.widget["text"])
 
     def select_multiple_pages(self, event: tk.Event) -> None:
+        """Add page to selection"""
         event.widget.config(bg="blue")
         self.selection.append(event.widget["text"])
 
@@ -94,6 +99,7 @@ class PyditorApplication(tk.Frame):
         self.pageViewerPanel = tk.PanedWindow(master=self, orient=tk.HORIZONTAL)
         self.toolbarPanel.add(self.pageViewerPanel)
 
+
         # == components definitions ==
         # -- pdf-page-viewer --
         self.leftPageViewer: MultiplePageViewer = (
@@ -106,6 +112,7 @@ class PyditorApplication(tk.Frame):
         self.PDFDocument: fitz.Document = fitz.Document()
 
     def load_components_view(self) -> None:
+        """Load the components for page-viewer"""
         self.clear_frame()
 
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
@@ -127,6 +134,7 @@ class PyditorApplication(tk.Frame):
             self.leftPageView.load_pages(self.PDFDocument)
 
     def load_components_edit(self):
+        """Load the components for page-editor"""
         self.clear_frame()
 
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
@@ -146,11 +154,12 @@ class PyditorApplication(tk.Frame):
         self.pageViewbarPanel.sash_place(0, 180, 1)
 
     def clear_frame(self):
+        """Removes all widget within the frame"""
         for widget in self.pageViewbarPanel.winfo_children():
             widget.destroy()
 
     def open_file(self):
-        """opens a filedialog to select a pdf-file and convert it to a 'fitz.Document'"""
+        """Opens a filedialog and convert selected pdf-file to a 'fitz.Document'"""
         pdf_file = askopenfilename(
             title="Choose your PDF you want to edit:",
             filetypes=[("PDF-Files", "*.pdf")],
@@ -167,15 +176,14 @@ class PyditorApplication(tk.Frame):
             self.leftPageViewer.load_pages(self.PDFDocument)
 
     def save_file(self):
-        """saves the edited pdf file using the metadata title as name"""
-        pass
+        """Saves the edited pdf file using the metadata title as name"""
 
     def save_file_name(self):
-        """saves the edited pdf-file asking for a name"""
-        pass
+        """Saves the edited pdf-file asking for a name"""
 
 
 def print_sash_pos():
+    """Print position of sashs for debugging"""
     print(f"1.: {app.toolbarPanel.sash_coord(0)}")
     print(f"2.: {app.toolbarPanel.sash_coord(1)}")
 
@@ -183,7 +191,7 @@ def print_sash_pos():
 if __name__ == "__main__":
     # create the window and do basic configuration
     rootWindow = tk.Tk()
-    rootWindow.title("Pyditor - edit PDFs")  # TODO: more meaningful name
+    rootWindow.title("Pyditor - edit PDFs")
     rootWindow.geometry("1200x1300")
 
     # creating and packing the Main Application
@@ -215,7 +223,7 @@ if __name__ == "__main__":
     # debugging
     debug = tk.Menu(master=rootWindow)
     mainMenu.add_cascade(label="debug", menu=debug)
-    printSash = debug.add_command(label="sash", command=print_sash_pos)
+    debug.add_command(label="sash", command=print_sash_pos)
 
     # run the windows mainloop
     try:
