@@ -8,6 +8,7 @@ import platform
 # (origin: https://gist.github.com/mp035/9f2027c3ef9172264532fcd6262f3b01)
 class ScrollFrame(tk.Frame):
     """A Scrollable Frame Class"""
+
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
