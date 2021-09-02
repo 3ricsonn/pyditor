@@ -14,6 +14,7 @@ class MultiplePageViewer(ScrollFrame):
         self.selection = []
 
     def load_pages(self, document: fitz.Document) -> None:
+        """displays all pages of the document verticaly"""
         # clear viewPort frame
         self.clear()
 
@@ -41,7 +42,6 @@ class MultiplePageViewer(ScrollFrame):
                 compound="top",
                 padx=3,
             )
-
             labelImg.image = tkImg
             labelImg.pack(pady=5, padx=5)
 
@@ -53,6 +53,7 @@ class MultiplePageViewer(ScrollFrame):
             self.pages.append(labelImg)
 
     def clear(self) -> None:
+        """removes all widget within the frame"""
         for widget in self.viewPort.winfo_children():
             widget.destroy()
 
@@ -92,6 +93,13 @@ class PyditorApplication(tk.Frame):
         # -- create page-view-bar panel --
         self.pageViewerPanel = tk.PanedWindow(master=self, orient=tk.HORIZONTAL)
         self.toolbarPanel.add(self.pageViewerPanel)
+        
+        
+        # == components definitions ==
+        # -- pdf-page-viewer --
+        self.leftPageViewer: MultiplePageViewer = None # scrollable Frame to display all pages of a document
+        
+        # -- pdf-page-editor --
 
         # create placeholder document
         self.PDFDocument: fitz.Document = fitz.Document()
@@ -141,7 +149,7 @@ class PyditorApplication(tk.Frame):
             widget.destroy()
 
     def open_file(self):
-        """opens a filedialog to open the to editing pdf and convert it to a 'fitz.Document'"""
+        """opens a filedialog to select a pdf-file and convert it to a 'fitz.Document'"""
         pdf_file = askopenfilename(
             title="Choose your PDF you want to edit:",
             filetypes=[("PDF-Files", "*.pdf")],
@@ -159,7 +167,7 @@ class PyditorApplication(tk.Frame):
 
     def save_file(self):
         """saves the edited pdf file using the metadata title as name"""
-
+ 
     def save_file_name(self):
         """saves the edited pdf-file asking for a name"""
 
