@@ -206,7 +206,7 @@ if __name__ == "__main__":
     # debugging
     debug = tk.Menu(master=rootWindow)
     mainMenu.add_cascade(label="debug", menu=debug)
-    printSash = debug.add_command(label="sash", command=print_sash_pos)
+    debug.add_command(label="sash", command=print_sash_pos)
 
     # run the windows mainloop
     try:
