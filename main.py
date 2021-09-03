@@ -107,14 +107,6 @@ class PyditorApplication(tk.Frame):
 
         # -- pdf-page-editor --
 
-        # == components definitions ==
-        # -- pdf-page-viewer --
-        self.leftPageViewer: MultiplePageViewer = (
-            None  # scrollable Frame displaying the pages of document
-        )
-
-        # -- pdf-page-editor --
-
         # create placeholder document
         self.PDFDocument: fitz.Document = fitz.Document()
 
