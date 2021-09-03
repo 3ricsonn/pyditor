@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 from PIL import Image, ImageTk
-import fitz
+import fitz  # PyMuPDF
 
 from widgets import ScrollFrame
 
@@ -16,7 +16,7 @@ class MultiplePageViewer(ScrollFrame):
         self.selection = []
 
     def load_pages(self, document: fitz.Document) -> None:
-        """Displays all pages of the document verticaly"""
+        """Displays all pages of the document vertically"""
         # clear viewPort frame
         self.clear()
 
@@ -30,7 +30,7 @@ class MultiplePageViewer(ScrollFrame):
             # rescale image to fit in the frame
             scale = (self.viewPort.winfo_width() - 16) / img.size[0]
             if scale <= 0:
-                raise ValueError("scale == {}".formate(scale))
+                raise ValueError("scale == {}".format(scale))
 
             scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 
@@ -48,7 +48,7 @@ class MultiplePageViewer(ScrollFrame):
             labelImg.pack(pady=5, padx=5)
 
             # bind an event whenever a page is clicked to select it
-            labelImg.bind("<Button-1>", func=self.add_page_to_selection)
+            labelImg.bind("<Button-1>", func=self.select_page)
             labelImg.bind("<Control-Button-1>", func=self.select_multiple_pages)
 
             # append label to pages to later display whether its selected
@@ -95,15 +95,14 @@ class PyditorApplication(tk.Frame):
         self.toolbarFrame = tk.Frame(master=self.toolbarPanel, bg="red")
         self.toolbarPanel.add(self.toolbarFrame)
 
-        # -- create page-view-bar panel --
+        # -- create page-viewer panel --
         self.pageViewerPanel = tk.PanedWindow(master=self, orient=tk.HORIZONTAL)
         self.toolbarPanel.add(self.pageViewerPanel)
 
         # == components definitions ==
         # -- pdf-page-viewer --
-        self.leftPageViewer: MultiplePageViewer = (
-            None  # scrollable Frame to display all pages of a document
-        )
+        # scrollable Frame to display all pages of a document
+        self.leftPageViewer: MultiplePageViewer = None
 
         # -- pdf-page-editor --
 
@@ -117,20 +116,21 @@ class PyditorApplication(tk.Frame):
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
         toolbar.pack(pady=10)
 
-        self.leftPageViewer = MultiplePageViewer(parent=self.pageViewbarPanel)
-        self.pageViewbarPanel.add(self.leftPageViewer)
+        self.leftPageViewer = MultiplePageViewer(parent=self.pageViewerPanel)
+        self.pageViewerPanel.add(self.leftPageViewer)
 
         editor = tk.Label(
-            master=self.pageViewbarPanel, text="single_page_editor", bg="blue"
+            master=self.pageViewerPanel, text="single_page_editor", bg="blue"
         )
-        self.pageViewbarPanel.add(editor)
+        self.pageViewerPanel.add(editor)
 
-        self.pageViewbarPanel.update()
-        self.pageViewbarPanel.sash_place(0, 180, 1)
+        self.pageViewerPanel.update()
+        self.pageViewerPanel.sash_place(0, 180, 1)
 
         # display already loaded document
         if self.PDFDocument:
-            self.leftPageView.load_pages(self.PDFDocument)
+            self.leftPageViewer.update()
+            self.leftPageViewer.load_pages(self.PDFDocument)
 
     def load_components_edit(self):
         """Load the components for page-editor"""
@@ -140,21 +140,21 @@ class PyditorApplication(tk.Frame):
         toolbar.pack(pady=10)
 
         left = tk.Label(
-            master=self.pageViewbarPanel, text="selected_page_view", bg="green"
+            master=self.pageViewerPanel, text="selected_page_view", bg="green"
         )
-        self.pageViewbarPanel.add(left)
+        self.pageViewerPanel.add(left)
 
         editor = tk.Label(
-            master=self.pageViewbarPanel, text="page_arrangement_editor", bg="blue"
+            master=self.pageViewerPanel, text="page_arrangement_editor", bg="blue"
         )
-        self.pageViewbarPanel.add(editor)
+        self.pageViewerPanel.add(editor)
 
-        self.pageViewbarPanel.update()
-        self.pageViewbarPanel.sash_place(0, 180, 1)
+        self.pageViewerPanel.update()
+        self.pageViewerPanel.sash_place(0, 180, 1)
 
     def clear_frame(self):
         """Removes all widget within the frame"""
-        for widget in self.pageViewbarPanel.winfo_children():
+        for widget in self.pageViewerPanel.winfo_children():
             widget.destroy()
 
     def open_file(self):
