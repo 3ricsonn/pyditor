@@ -69,9 +69,11 @@ class SingleSelectablePV(MultiplePageViewer):
         self.related: MultiplePageViewer = None
 
     def add_page_viewer_relation(self, widget: MultiplePageViewer):
+        """add page viewer to jump to selected page"""
         self.related = widget
 
     def load_pages(self, document: fitz.Document) -> None:
+        """Displays all pages of the document vertically"""
         super().load_pages(document)
 
         for i, label in enumerate(self.pages, 1):
@@ -106,6 +108,7 @@ class MultipleSelectablePV(MultiplePageViewer):
         self.selection = []
 
     def load_pages(self, document: fitz.Document) -> None:
+        """Displays all pages of the document vertically"""
         super().load_pages(document)
 
         for i, label in enumerate(self.pages, 1):
