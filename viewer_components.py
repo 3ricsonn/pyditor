@@ -69,7 +69,7 @@ class SingleSelectablePV(MultiplePageViewer):
         self.related: MultiplePageViewer = None
 
     def add_page_viewer_relation(self, widget: MultiplePageViewer):
-        """add page viewer to jump to selected page"""
+        """Add page viewer to jump to selected page"""
         self.related = widget
 
     def load_pages(self, document: fitz.Document) -> None:
