@@ -37,6 +37,9 @@ class PyditorApplication(tk.Frame):
         # create placeholder document
         self.PDFDocument: fitz.Document = fitz.Document()
 
+        # saves to editor mode
+        self.mode: str = "view"
+
     def load_components_view(self) -> None:
         """Load the components for page-viewer"""
         self.clear_frame()
@@ -62,6 +65,9 @@ class PyditorApplication(tk.Frame):
             self.leftPageViewer.load_pages(self.PDFDocument)
             self.mainPageViewer.load_pages(self.PDFDocument)
 
+        # update mode
+        self.mode: str = "view"
+
     def load_components_edit(self) -> None:
         """Load the components for page-editor"""
         self.clear_frame()
@@ -81,6 +87,9 @@ class PyditorApplication(tk.Frame):
 
         self.pageViewerPanel.update()
         self.pageViewerPanel.sash_place(0, 180, 1)
+
+        # update mode
+        self.mode: str = "edit"
 
     def clear_frame(self):
         """Removes all widget within the frame"""
