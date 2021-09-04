@@ -1,82 +1,8 @@
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
-from PIL import Image, ImageTk
 import fitz  # PyMuPDF
 
-from widgets import ScrollFrame
-
-
-class MultiplePageViewer(ScrollFrame):
-    """Scrollable Frame  to display and select pages of an pdf document"""
-
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-
-        self.pages = []
-        self.selection = []
-
-    def load_pages(self, document: fitz.Document) -> None:
-        """Displays all pages of the document vertically"""
-        # clear viewPort frame
-        self.clear()
-
-        for i, page in enumerate(document, start=1):
-            pix = page.get_pixmap()
-
-            # set the mode depending on alpha
-            mode = "RGBA" if pix.alpha else "RGB"
-            img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
-
-            # rescale image to fit in the frame
-            scale = (self.viewPort.winfo_width() - 16) / img.size[0]
-            if scale <= 0:
-                raise ValueError("scale == {}".format(scale))
-
-            scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
-
-            # convert to a displayable tk-image
-            tkImg = ImageTk.PhotoImage(scaleImg)
-
-            labelImg = tk.Label(
-                master=self.viewPort,
-                text=f"Page {i}",
-                image=tkImg,
-                compound="top",
-                padx=3,
-            )
-            labelImg.image = tkImg
-            labelImg.pack(pady=5, padx=5)
-
-            # bind an event whenever a page is clicked to select it
-            labelImg.bind("<Button-1>", func=self.select_page)
-            labelImg.bind("<Control-Button-1>", func=self.select_multiple_pages)
-
-            # append label to pages to later display whether its selected
-            self.pages.append(labelImg)
-
-    def clear(self) -> None:
-        """Removes all widget within the frame"""
-        for widget in self.viewPort.winfo_children():
-            widget.destroy()
-
-    def clear_selection(self) -> None:
-        """Remove selected pages from selection and reset page background"""
-        for widget in self.viewPort.winfo_children():
-            widget.config(bg="#cecfd0")
-
-        self.selection.clear()
-
-    def select_page(self, event: tk.Event) -> None:
-        """Select page"""
-        self.clear_selection()
-
-        event.widget.config(bg="blue")
-        self.selection.append(event.widget["text"])
-
-    def select_multiple_pages(self, event: tk.Event) -> None:
-        """Add page to selection"""
-        event.widget.config(bg="blue")
-        self.selection.append(event.widget["text"])
+from viewer_components import MultiplePageViewer, SingleSelectablePV
 
 
 class PyditorApplication(tk.Frame):
@@ -102,7 +28,9 @@ class PyditorApplication(tk.Frame):
         # == components definitions ==
         # -- pdf-page-viewer --
         # scrollable Frame to display all pages of a document
-        self.leftPageViewer: MultiplePageViewer = None
+        self.leftPageViewer: SingleSelectablePV = None
+        # scrollable Frame to display the document each page at a time
+        self.mainPageViewer: MultiplePageViewer = None
 
         # -- pdf-page-editor --
 
@@ -116,13 +44,14 @@ class PyditorApplication(tk.Frame):
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
         toolbar.pack(pady=10)
 
-        self.leftPageViewer = MultiplePageViewer(parent=self.pageViewerPanel)
+        self.leftPageViewer = SingleSelectablePV(parent=self.pageViewerPanel)
         self.pageViewerPanel.add(self.leftPageViewer)
 
-        editor = tk.Label(
-            master=self.pageViewerPanel, text="single_page_editor", bg="blue"
-        )
-        self.pageViewerPanel.add(editor)
+        self.mainPageViewer = MultiplePageViewer(parent=self.pageViewerPanel)
+        self.pageViewerPanel.add(self.mainPageViewer)
+
+        # add main page viewer to left page viewer to jump to selected page
+        self.leftPageViewer.add_page_viewer_relation(self.mainPageViewer)
 
         self.pageViewerPanel.update()
         self.pageViewerPanel.sash_place(0, 180, 1)
@@ -131,8 +60,9 @@ class PyditorApplication(tk.Frame):
         if self.PDFDocument:
             self.leftPageViewer.update()
             self.leftPageViewer.load_pages(self.PDFDocument)
+            self.mainPageViewer.load_pages(self.PDFDocument)
 
-    def load_components_edit(self):
+    def load_components_edit(self) -> None:
         """Load the components for page-editor"""
         self.clear_frame()
 
@@ -173,6 +103,7 @@ class PyditorApplication(tk.Frame):
             # display file in page viewer
             self.leftPageViewer.clear()
             self.leftPageViewer.load_pages(self.PDFDocument)
+            self.mainPageViewer.load_pages(self.PDFDocument)
 
     def save_file(self):
         """Saves the edited pdf file using the metadata title as name"""
@@ -182,7 +113,7 @@ class PyditorApplication(tk.Frame):
 
 
 def print_sash_pos():
-    """Print position of sashs for debugging"""
+    """Print position of sashes for debugging"""
     print(f"1.: {app.toolbarPanel.sash_coord(0)}")
     print(f"2.: {app.toolbarPanel.sash_coord(1)}")
 
