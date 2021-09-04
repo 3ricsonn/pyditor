@@ -56,6 +56,8 @@ class MultiplePageViewer(ScrollFrame):
         for widget in self.viewPort.winfo_children():
             widget.destroy()
 
+        self.pages.clear()
+
 
 class SingleSelectablePV(MultiplePageViewer):
     """Scrollable Frame to display and select a single page of a pdf document"""
