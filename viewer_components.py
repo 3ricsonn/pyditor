@@ -97,7 +97,7 @@ class SingleSelectablePV(MultiplePageViewer):
             self.related.jump_to_page(int(event.widget["text"].split(" ")[-1])-1)
 
 
-class MultibleSelectablePV(MultiplePageViewer):
+class MultipleSelectablePV(MultiplePageViewer):
     """Scrollable Frame to display and select multiple pages of a pdf document"""
 
     def __init__(self, parent, *args, **kwargs):
