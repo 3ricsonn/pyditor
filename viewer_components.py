@@ -49,12 +49,14 @@ class MultiplePageViewer(ScrollFrame):
 
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""
-        self.canvas.yview_moveto(str(page/len(self.pages)))
+        self.canvas.yview_moveto(str(page / len(self.pages)))
 
     def clear(self) -> None:
         """Removes all widget within the frame"""
         for widget in self.viewPort.winfo_children():
             widget.destroy()
+
+        self.pages.clear()
 
 
 class SingleSelectablePV(MultiplePageViewer):
@@ -67,9 +69,11 @@ class SingleSelectablePV(MultiplePageViewer):
         self.related: MultiplePageViewer = None
 
     def add_page_viewer_relation(self, widget: MultiplePageViewer):
+        """Add page viewer to jump to selected page"""
         self.related = widget
 
     def load_pages(self, document: fitz.Document) -> None:
+        """Displays all pages of the document vertically"""
         super().load_pages(document)
 
         for i, label in enumerate(self.pages, 1):
@@ -89,13 +93,13 @@ class SingleSelectablePV(MultiplePageViewer):
         self.clear_selection()
 
         event.widget.config(bg="blue")
-        
+
         # jump with main page viewer to selected page
         if self.related:
-            self.related.jump_to_page(int(event.widget["text"].split(" ")[-1])-1)
+            self.related.jump_to_page(int(event.widget["text"].split(" ")[-1]) - 1)
 
 
-class MultibleSelectablePV(MultiplePageViewer):
+class MultipleSelectablePV(MultiplePageViewer):
     """Scrollable Frame to display and select multiple pages of a pdf document"""
 
     def __init__(self, parent, *args, **kwargs):
@@ -104,6 +108,7 @@ class MultibleSelectablePV(MultiplePageViewer):
         self.selection = []
 
     def load_pages(self, document: fitz.Document) -> None:
+        """Displays all pages of the document vertically"""
         super().load_pages(document)
 
         for i, label in enumerate(self.pages, 1):
