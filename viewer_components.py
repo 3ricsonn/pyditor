@@ -66,11 +66,11 @@ class SingleSelectablePV(MultiplePageViewer):
         super().__init__(parent, *args, **kwargs)
 
         # related page viewer to display selected page
-        self.related: MultiplePageViewer = None
+        self._related: MultiplePageViewer = None
 
     def add_page_viewer_relation(self, widget: MultiplePageViewer):
-        """Add page viewer to jump to selected page"""
-        self.related = widget
+        """Add page viewer to be able to jump to a selected page"""
+        self._related = widget
 
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
@@ -94,9 +94,9 @@ class SingleSelectablePV(MultiplePageViewer):
 
         event.widget.config(bg="blue")
 
-        # jump with main page viewer to selected page
-        if self.related:
-            self.related.jump_to_page(int(event.widget["text"].split(" ")[-1]) - 1)
+        # jump with added page viewer to selected page
+        if self._related:
+            self._related.jump_to_page(int(event.widget["text"].split(" ")[-1]) - 1)
 
 
 class MultipleSelectablePV(MultiplePageViewer):
