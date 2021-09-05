@@ -1,6 +1,10 @@
 import tkinter as tk
 import platform
 
+__all__ = [
+    "ScrollFrame"
+]
+
 
 # ************************
 # Scrollable Frame Class
