@@ -3,6 +3,7 @@ from tkinter.filedialog import askopenfilename
 import fitz  # PyMuPDF
 
 from viewer_components import MultiplePageViewer, SingleSelectablePV
+from editor_components import MultiplePageEditor
 
 
 class PyditorApplication(tk.Frame):
@@ -33,6 +34,8 @@ class PyditorApplication(tk.Frame):
         self.mainPageViewer: MultiplePageViewer = None
 
         # -- pdf-page-editor --
+        # scrollable Frame to display pages in two columns and edit their order
+        self.mainEditor: MultiplePageEditor = None
 
         # create placeholder document
         self.PDFDocument: fitz.Document = fitz.Document()
@@ -60,10 +63,9 @@ class PyditorApplication(tk.Frame):
         self.pageViewerPanel.sash_place(0, 180, 1)
 
         # display already loaded document
-        if self.PDFDocument:
-            self.leftPageViewer.update()
-            self.leftPageViewer.load_pages(self.PDFDocument)
-            self.mainPageViewer.load_pages(self.PDFDocument)
+        self.leftPageViewer.clear()
+        self.leftPageViewer.load_pages(self.PDFDocument)
+        self.mainPageViewer.load_pages(self.PDFDocument)
 
         # update mode
         self.mode: str = "view"
@@ -80,13 +82,14 @@ class PyditorApplication(tk.Frame):
         )
         self.pageViewerPanel.add(left)
 
-        editor = tk.Label(
-            master=self.pageViewerPanel, text="page_arrangement_editor", bg="blue"
-        )
-        self.pageViewerPanel.add(editor)
+        self.mainEditor = MultiplePageEditor(parent=self.pageViewerPanel, column=2)
+        self.pageViewerPanel.add(self.mainEditor)
 
         self.pageViewerPanel.update()
         self.pageViewerPanel.sash_place(0, 180, 1)
+
+        # display already loaded document
+        self.mainEditor.load_pages(self.PDFDocument)
 
         # update mode
         self.mode: str = "edit"
@@ -110,9 +113,12 @@ class PyditorApplication(tk.Frame):
             self.parent.title("Pyditor - editing: " + pdf_file)
 
             # display file in page viewer
-            self.leftPageViewer.clear()
-            self.leftPageViewer.load_pages(self.PDFDocument)
-            self.mainPageViewer.load_pages(self.PDFDocument)
+            if self.mode == "view":
+                self.leftPageViewer.clear()
+                self.leftPageViewer.load_pages(self.PDFDocument)
+                self.mainPageViewer.load_pages(self.PDFDocument)
+            else:
+                self.mainEditor.load_pages(self.PDFDocument)
 
     def save_file(self):
         """Saves the edited pdf file using the metadata title as name"""
