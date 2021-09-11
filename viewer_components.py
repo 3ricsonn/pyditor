@@ -4,14 +4,17 @@ import fitz  # PyMuPDF
 
 from widgets import ScrollFrame
 
+__all__ = ["MultiplePageViewer", "SingleSelectablePV"]
+
 
 class MultiplePageViewer(ScrollFrame):
     """Scrollable Frame to display pages of a pdf document"""
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, column=1, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
         self.pages = []
+        self.column = column
 
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
@@ -26,7 +29,7 @@ class MultiplePageViewer(ScrollFrame):
             img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
 
             # rescale image to fit in the frame
-            scale = (self.viewPort.winfo_width() - 16) / img.size[0]
+            scale = ((self.viewPort.winfo_width() - 16) / self.column) / img.size[0]
             if scale <= 0:
                 raise ValueError("scale == {}".format(scale))
 
@@ -42,7 +45,18 @@ class MultiplePageViewer(ScrollFrame):
                 padx=3,
             )
             labelImg.image = tkImg
-            labelImg.pack(pady=5, padx=5)
+            labelImg.id = i
+
+            # place label in frame
+            if self.column != 1:
+                labelImg.grid(
+                    row=(i - 1) // self.column,
+                    column=(i - 1) % self.column,
+                    pady=5,
+                    padx=5,
+                )
+            else:
+                labelImg.grid(column=0, row=i - 1, pady=5, padx=5)
 
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)
