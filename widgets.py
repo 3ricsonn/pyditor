@@ -1,9 +1,7 @@
 import tkinter as tk
 import platform
 
-__all__ = [
-    "ScrollFrame"
-]
+__all__ = ["ScrollFrame"]
 
 
 # ************************
