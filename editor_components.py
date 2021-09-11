@@ -8,7 +8,7 @@ __all__ = ["MultiplePageEditor"]
 
 class MultiplePageEditor(MultiplePageViewer):
     """Class to display all pages and edit their order"""
-    def __init__(self, parent, *args, **kwargs, column=1):
+    def __init__(self, parent, column=1, *args, **kwargs):
         super().__init__(parent, *args, **kwargs, column=column)
 
         self.selection = []
