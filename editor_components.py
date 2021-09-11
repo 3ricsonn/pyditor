@@ -3,9 +3,7 @@ import fitz  # PyMuPDF
 
 from viewer_components import MultiplePageViewer
 
-__all__ = [
-    "MultiplePageEditor"
-]
+__all__ = ["MultiplePageEditor"]
 
 
 class MultiplePageEditor(MultiplePageViewer):

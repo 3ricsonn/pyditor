@@ -4,10 +4,7 @@ import fitz  # PyMuPDF
 
 from widgets import ScrollFrame
 
-__all__ = [
-    "MultiplePageViewer",
-    "SingleSelectablePV"
-]
+__all__ = ["MultiplePageViewer", "SingleSelectablePV"]
 
 
 class MultiplePageViewer(ScrollFrame):
@@ -52,7 +49,12 @@ class MultiplePageViewer(ScrollFrame):
 
             # place label in frame
             if self.column != 1:
-                labelImg.grid(row=(i - 1) // self.column, column=(i - 1) % self.column, pady=5, padx=5)
+                labelImg.grid(
+                    row=(i - 1) // self.column,
+                    column=(i - 1) % self.column,
+                    pady=5,
+                    padx=5,
+                )
             else:
                 labelImg.grid(column=0, row=i - 1, pady=5, padx=5)
 
