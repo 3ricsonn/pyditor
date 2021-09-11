@@ -7,8 +7,9 @@ __all__ = ["MultiplePageEditor"]
 
 
 class MultiplePageEditor(MultiplePageViewer):
-    def __init__(self, parent, column=1, *args, **kwargs):
-        super().__init__(parent, column, *args, **kwargs)
+    """Class to display all pages and edit their order"""
+    def __init__(self, parent, *args, **kwargs, column=1):
+        super().__init__(parent, *args, **kwargs, column=column)
 
         self.selection = []
 
@@ -20,6 +21,7 @@ class MultiplePageEditor(MultiplePageViewer):
         self.rightClickMenu.add_command(label="Delete")
 
     def load_pages(self, document: fitz.Document) -> None:
+        """extend load methode to bind selection events to each page"""
         super().load_pages(document)
 
         for page in self.pages:
@@ -31,10 +33,11 @@ class MultiplePageEditor(MultiplePageViewer):
             page.bind("<Button-3>", func=self.popup)
 
     def popup(self, event):
+        """Function to appear a right-click menu"""
         try:
             self.rightClickMenu.tk_popup(x=event.x_root, y=event.y_root)
         finally:
-            self.rightClickMenu.grab_release()  # TODO: when clicked outside, popup should disappear
+            self.rightClickMenu.grab_release()
 
     def select_page(self, event: tk.Event) -> None:
         """Select page"""
