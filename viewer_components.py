@@ -80,11 +80,11 @@ class SingleSelectablePV(MultiplePageViewer):
         super().__init__(parent, *args, **kwargs)
 
         # related page viewer to display selected page
-        self.related: MultiplePageViewer = None
+        self._related: MultiplePageViewer = None
 
     def add_page_viewer_relation(self, widget: MultiplePageViewer):
-        """Add page viewer to jump to selected page"""
-        self.related = widget
+        """Add page viewer to be able to jump to a selected page"""
+        self._related = widget
 
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
@@ -108,6 +108,46 @@ class SingleSelectablePV(MultiplePageViewer):
 
         event.widget.config(bg="blue")
 
-        # jump with main page viewer to selected page
-        if self.related:
-            self.related.jump_to_page(event.widget.id - 1)
+        # jump with added page viewer to selected page
+        if self._related:
+            self._related.jump_to_page(int(event.widget["text"].split(" ")[-1]) - 1)
+
+
+class MultipleSelectablePV(MultiplePageViewer):
+    """Scrollable Frame to display and select multiple pages of a pdf document"""
+
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+
+        self.selection = []
+
+    def load_pages(self, document: fitz.Document) -> None:
+        """Displays all pages of the document vertically"""
+        super().load_pages(document)
+
+        for i, label in enumerate(self.pages, 1):
+            # add title to page
+            label.config(text=f"Page {i}")
+
+            # bind an event whenever a page is clicked to select it
+            label.bind("<Button-1>", func=self.select_page)
+            label.bind("<Control-Button-1>", func=self.select_multiple_pages)
+
+    def clear_selection(self) -> None:
+        """Remove selected pages from selection and reset page background"""
+        for widget in self.viewPort.winfo_children():
+            widget.config(bg="#cecfd0")
+
+        self.selection.clear()
+
+    def select_page(self, event: tk.Event) -> None:
+        """Select page"""
+        self.clear_selection()
+
+        event.widget.config(bg="blue")
+        self.selection.append(event.widget["text"])
+
+    def select_multiple_pages(self, event: tk.Event) -> None:
+        """Add page to selection"""
+        event.widget.config(bg="blue")
+        self.selection.append(event.widget["text"])
