@@ -21,7 +21,7 @@ class MultiplePageEditor(MultiplePageViewer):
         self.rightClickMenu.add_command(label="Delete")
 
     def load_pages(self, document: fitz.Document) -> None:
-        """extend load methode to bind selection events to each page"""
+        """Extend load methode to bind selection events to each page"""
         super().load_pages(document)
 
         for page in self.pages:
