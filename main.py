@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename
 import fitz  # PyMuPDF
 
-from widgets import CollapsibleFrame
-from components import PageViewer
+from widgets import CollapsibleFrame, PageViewer
+from components import SingleSelectablePV
 
 
 class PyditorApplication(tk.Frame):
@@ -32,7 +32,7 @@ class PyditorApplication(tk.Frame):
         # == components definitions ==
         # -- page viewer --
         self.pageViewerFrame: CollapsibleFrame = None
-        self.pageViewer: PageViewer = None
+        self.pageViewer: SingleSelectablePV = None
 
         # -- document editor --
         self.editorFrame: tk.Frame = None
@@ -56,7 +56,7 @@ class PyditorApplication(tk.Frame):
         self.bodyPanel.add(self.pageViewerFrame)
 
         # Scrollable Frame to display pages of the document
-        self.pageViewer = PageViewer(parent=self.pageViewerFrame.frame)
+        self.pageViewer = SingleSelectablePV(parent=self.pageViewerFrame.frame)
         self.pageViewer.pack(fill="both", expand=True)
 
         # == main document editor ==
@@ -85,6 +85,7 @@ class PyditorApplication(tk.Frame):
         # bind functions when page viewer shows or hides
         self.pageViewerFrame.bind_hide_func(func=lambda: self._hide(index=0, newpos=20))
         self.pageViewerFrame.bind_show_func(func=lambda: self._show(index=0))
+        self.pageViewer.add_page_viewer_relation(widget=self.pageEditor)
 
         # -- selection viewer --
         # bind functions when selection viewer shows or hides
@@ -94,6 +95,7 @@ class PyditorApplication(tk.Frame):
         # load document content if opened
         if self.PDFDocument:
             self.pageViewer.load_pages(document=self.PDFDocument)
+            self.pageEditor.load_pages(document=self.PDFDocument)
 
     def _hide(self, index: int, newpos: int):
         """Function called when collapsible frame hides to relocate sash on newpos"""
@@ -115,6 +117,7 @@ class PyditorApplication(tk.Frame):
             self.PDFDocument = fitz.Document(pdf_file)
 
             self.pageViewer.load_pages(document=self.PDFDocument)
+            self.pageEditor.load_pages(document=self.PDFDocument)
 
             # rename title with according file path
             self.parent.title("Pyditor - editing: " + pdf_file)

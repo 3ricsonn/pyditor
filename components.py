@@ -1,73 +1,47 @@
 import tkinter as tk
-from PIL import Image, ImageTk
+from widgets import PageViewer
 import fitz  # PyMuPDF
 
-from widgets import ScrollFrame
-
 __all__ = [
-    "PageViewer",
+    "SingleSelectablePV"
 ]
 
 
-class PageViewer(ScrollFrame):
-    """Scrollable Frame to display pages of a pdf document"""
+class SingleSelectablePV(PageViewer):
+    """Scrollable Frame to display and select a single page of a pdf document"""
 
-    def __init__(self, parent, column=1, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
-        self.pages = []
-        self.column = column
+        # related page viewer to display selected page
+        self._related: PageViewer = None
+
+    def add_page_viewer_relation(self, widget: PageViewer):
+        """Add page viewer to be able to jump to a selected page"""
+        self._related = widget
 
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
-        # clear viewPort frame
-        self.clear()
+        super().load_pages(document)
 
-        for i, page in enumerate(document, start=1):
-            pix = page.get_pixmap()
+        for i, label in enumerate(self.pages, 1):
+            # add title to page
+            label.config(text=f"Page {i}")
 
-            # set the mode depending on alpha
-            mode = "RGBA" if pix.alpha else "RGB"
-            img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
+            # bind an event whenever a page is clicked to select it
+            label.bind("<Button-1>", func=self.select_page)
 
-            # rescale image to fit in the frame
-            scale = ((self.viewPort.winfo_width() - 16) / self.column) / img.size[0]
-
-            scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
-
-            # convert to a displayable tk-image
-            tkImg = ImageTk.PhotoImage(scaleImg)
-
-            labelImg = tk.Label(
-                master=self.viewPort,
-                image=tkImg,
-                compound="top",
-                padx=3,
-            )
-            labelImg.image = tkImg
-            labelImg.id = i
-
-            # place label in frame
-            if self.column == 1:
-                labelImg.grid(column=0, row=i - 1, pady=5, padx=5)
-            else:
-                labelImg.grid(
-                    row=(i - 1) // self.column,
-                    column=(i - 1) % self.column,
-                    pady=5,
-                    padx=5,
-                )
-
-            # append label to pages to later display whether its selected
-            self.pages.append(labelImg)
-
-    def jump_to_page(self, page: int) -> None:
-        """Jumps with scrollbar to given page"""
-        self.canvas.yview_moveto(str(page / len(self.pages)))
-
-    def clear(self) -> None:
-        """Removes all widget within the frame"""
+    def clear_selection(self) -> None:
+        """Remove selected pages from selection and reset page background"""
         for widget in self.viewPort.winfo_children():
-            widget.destroy()
+            widget.config(bg="#cecfd0")
 
-        self.pages.clear()
+    def select_page(self, event: tk.Event) -> None:
+        """Select page"""
+        self.clear_selection()
+
+        event.widget.config(bg="blue")
+
+        # jump with added page viewer to selected page
+        if self._related:
+            self._related.jump_to_page(int(event.widget["text"].split(" ")[-1]) - 1)
