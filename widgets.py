@@ -1,7 +1,10 @@
 import tkinter as tk
 import platform
 
-__all__ = ["ScrollFrame"]
+__all__ = [
+    "ScrollFrame",
+    "CollapsibleFrame"
+]
 
 
 # ************************
@@ -89,6 +92,60 @@ class ScrollFrame(tk.Frame):
             self.canvas.unbind_all("<Button-5>")
         else:
             self.canvas.unbind_all("<MouseWheel>")
+
+
+class CollapsibleFrame(tk.Frame):
+    """A Collapsible Frame Class"""
+
+    def __init__(self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs):
+        super().__init__(master=parent, *args, **kwargs)
+
+        # == store attributes ==
+        # stores the state the frame starts in
+        if state == "show" or state == "hide":
+            self.state = state
+        else:
+            raise ValueError("Attribute state must be ether show or hide")
+
+        # stores the characters shown on the button
+        self.char: tuple = char
+
+        # stores the order of frame and button
+        if align == "left":
+            self.align = ("left", "right")
+        elif align == "right":
+            self.align = ("right", "left")
+        else:
+            raise ValueError("Attribute align must be ether left or right")
+
+        # function called when frame hides
+        self.func_hide = lambda: None
+        # function called when frame shows
+        self.func_show = lambda: None
+
+        # == Components ==
+        # -- declare components of the widget --
+        self.frame = tk.Frame(master=self)
+        self._hideButton = tk.Button(master=self, text=self.char[0], padx=1, command=self._hide)
+
+        # -- display components --
+        self._hideButton.pack(fill="y", side=self.align[1])
+        if self.state == "show":
+            self._show()
+        else:
+            self._hide()
+
+    def _hide(self):
+        """Hide content expects the button"""
+        self.func_hide()
+        self.frame.pack_forget()
+        self._hideButton.config(text=self.char[1], command=self._show)
+
+    def _show(self):
+        """Reshow content"""
+        self.func_show()
+        self.frame.pack(fill="both", side=self.align[0], expand=True)
+        self._hideButton.config(text=self.char[0], command=self._hide)
 
 
 if __name__ == "__main__":
