@@ -101,10 +101,16 @@ class PyditorApplication(tk.Frame):
         """Function called when collapsible frame hides to relocate sash on newpos"""
         self.sashpos[index] = self.bodyPanel.sash_coord(index)
         self.bodyPanel.sash_place(index, newpos, 1)
+        self.update_editor()
 
     def _show(self, index: int):
         """Function called when collapsible frame shows to relocate sash"""
         self.bodyPanel.sash_place(index, *self.sashpos[index])
+        self.update_editor()
+
+    def update_editor(self):
+        self.bodyPanel.update()
+        self.pageEditor.load_pages(self.PDFDocument)
 
     def open_file(self):
         """Opens a filedialog and convert selected pdf-file to a 'fitz.Document'"""
