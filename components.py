@@ -2,9 +2,7 @@ import tkinter as tk
 from widgets import PageViewer
 import fitz  # PyMuPDF
 
-__all__ = [
-    "SingleSelectablePV"
-]
+__all__ = ["SingleSelectablePV"]
 
 
 class SingleSelectablePV(PageViewer):
