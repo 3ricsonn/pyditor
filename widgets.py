@@ -95,7 +95,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -118,9 +118,9 @@ class CollapsibleFrame(tk.Frame):
             raise ValueError("Attribute align must be ether left or right")
 
         # function called when frame hides
-        self.func_hide = lambda: None
+        self._func_hide = lambda: None
         # function called when frame shows
-        self.func_show = lambda: None
+        self._func_show = lambda: None
 
         # == Components ==
         # -- declare components of the widget --
@@ -136,15 +136,27 @@ class CollapsibleFrame(tk.Frame):
         else:
             self._hide()
 
-    def _hide(self):
+    def bind_hide_func(self, func) -> None:
+        """Bind a function when frame hides and calls it"""
+        self._func_hide = func
+        if self.state == "hide":
+            self._func_hide()
+
+    def bind_show_func(self, func) -> None:
+        """Bind a function when frame hides and calls it"""
+        self._func_show = func
+        if self.state == "show":
+            self._func_show()
+
+    def _hide(self) -> None:
         """Hide content expects the button"""
-        self.func_hide()
+        self._func_hide()
         self.frame.pack_forget()
         self._hideButton.config(text=self.char[1], command=self._show)
 
-    def _show(self):
+    def _show(self) -> None:
         """Reshow content"""
-        self.func_show()
+        self._func_show()
         self.frame.pack(fill="both", side=self.align[0], expand=True)
         self._hideButton.config(text=self.char[0], command=self._hide)
 

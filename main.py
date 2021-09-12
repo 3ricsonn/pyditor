@@ -53,8 +53,6 @@ class PyditorApplication(tk.Frame):
         # == page viewer ==
         # collapsible Frame as widget container
         self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel)
-        self.pageViewerFrame.func_hide = lambda: self._hide(index=0, newpos=20)
-        self.pageViewerFrame.func_show = lambda: self._show(index=0)
         self.bodyPanel.add(self.pageViewerFrame)
 
         # Scrollable Frame to display pages of the document
@@ -73,16 +71,25 @@ class PyditorApplication(tk.Frame):
         # == selection viewer ==
         # collapsible Frame as widget container
         self.selectionViewerFrame = CollapsibleFrame(
-            parent=self.bodyPanel, char=(">", "<"), align="right"
+            parent=self.bodyPanel, state="hide", char=(">", "<"), align="right"
         )
-        self.selectionViewerFrame.func_hide = lambda: self._hide(index=1, newpos=1330)
-        self.selectionViewerFrame.func_show = lambda: self._show(index=1)
         self.bodyPanel.add(self.selectionViewerFrame)
 
-        # set sashes
+        # == Sashes ==
         self.bodyPanel.update()
         for i, pos in enumerate(self.sashpos):
             self.bodyPanel.sash_place(i, *pos)
+
+        # == Bindings ==
+        # -- page viewer --
+        # bind functions when page viewer shows or hides
+        self.pageViewerFrame.bind_hide_func(func=lambda: self._hide(index=0, newpos=20))
+        self.pageViewerFrame.bind_show_func(func=lambda: self._show(index=0))
+
+        # -- selection viewer --
+        # bind functions when selection viewer shows or hides
+        self.selectionViewerFrame.bind_hide_func(func=lambda: self._hide(index=1, newpos=1330))
+        self.selectionViewerFrame.bind_show_func(func=lambda: self._show(index=1))
 
         # load document content if opened
         if self.PDFDocument:
@@ -121,8 +128,8 @@ class PyditorApplication(tk.Frame):
 
 def print_sash_pos():
     """Print position of sashes for debugging"""
-    print(f"1.: {app.toolbarPanel.sash_coord(0)}")
-    print(f"2.: {app.toolbarPanel.sash_coord(1)}")
+    print(f"1.: {app.bodyPanel.sash_coord(0)}")
+    print(f"2.: {app.bodyPanel.sash_coord(1)}")
 
 
 if __name__ == "__main__":
