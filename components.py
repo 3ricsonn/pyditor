@@ -48,15 +48,15 @@ class PageViewer(ScrollFrame):
             labelImg.id = i
 
             # place label in frame
-            if self.column != 1:
+            if self.column == 1:
+                labelImg.grid(column=0, row=i - 1, pady=5, padx=5)
+            else:
                 labelImg.grid(
                     row=(i - 1) // self.column,
                     column=(i - 1) % self.column,
                     pady=5,
                     padx=5,
                 )
-            else:
-                labelImg.grid(column=0, row=i - 1, pady=5, padx=5)
 
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)

@@ -68,7 +68,7 @@ class PyditorApplication(tk.Frame):
         self.bodyPanel.add(self.editorFrame)
 
         # Scrollable Frame to display and edit pages of the document
-        self.pageEditor = PageViewer(parent=self.editorFrame)
+        self.pageEditor = PageViewer(parent=self.editorFrame, column=2)
         self.pageEditor.pack(fill="both", expand=True)
 
         # == selection viewer ==
@@ -82,7 +82,7 @@ class PyditorApplication(tk.Frame):
         self.bodyPanel.update()
         for i, pos in enumerate(self.sashpos):
             self.bodyPanel.sash_place(i, *pos)
-        
+
         # load document content if opened
         if self.PDFDocument:
             self.pageViewer.load_pages(document=self.PDFDocument)
@@ -105,7 +105,7 @@ class PyditorApplication(tk.Frame):
 
         if pdf_file:
             self.PDFDocument = fitz.Document(pdf_file)
-            
+
             self.pageViewer.load_pages(document=self.PDFDocument)
 
             # rename title with according file path
