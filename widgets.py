@@ -227,7 +227,8 @@ class PageViewer(ScrollFrame):
 
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""
-        self.canvas.yview_moveto(str((page//self.column) / (len(self.pages)//self.column+1)))
+        fraction = (page//self.column) / (len(self.pages)//self.column+1)
+        self.canvas.yview_moveto(str(fraction))
 
     def clear(self) -> None:
         """Removes all widget within the frame"""

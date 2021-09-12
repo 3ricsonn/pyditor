@@ -89,8 +89,8 @@ class PyditorApplication(tk.Frame):
 
         # -- selection viewer --
         # bind functions when selection viewer shows or hides
-        self.selectionViewerFrame.bind_hide_func(func=lambda: self._hide(index=1, newpos=1330))
-        self.selectionViewerFrame.bind_show_func(func=lambda: self._show(index=1))
+        self.selectionViewerFrame.bind_hide_func(lambda: self._hide(index=1, newpos=1330))
+        self.selectionViewerFrame.bind_show_func(lambda: self._show(index=1))
 
         # load document content if opened
         if self.PDFDocument:
@@ -109,6 +109,7 @@ class PyditorApplication(tk.Frame):
         self.update_editor()
 
     def update_editor(self):
+        """Updates the dimensions of the editor after sash been relocated"""
         self.bodyPanel.update()
         self.pageEditor.load_pages(self.PDFDocument)
 
