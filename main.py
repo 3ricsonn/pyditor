@@ -46,7 +46,6 @@ class PyditorApplication(tk.Frame):
 
     def load_components(self) -> None:
         """Load the components for page-viewer"""
-
         # == toolbar ==
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
         toolbar.pack(pady=10)
@@ -73,7 +72,9 @@ class PyditorApplication(tk.Frame):
 
         # == selection viewer ==
         # collapsible Frame as widget container
-        self.selectionViewerFrame = CollapsibleFrame(parent=self.bodyPanel, char=(">", "<"), align="right")
+        self.selectionViewerFrame = CollapsibleFrame(
+            parent=self.bodyPanel, char=(">", "<"), align="right"
+        )
         self.selectionViewerFrame.func_hide = lambda: self._hide(index=1, newpos=1330)
         self.selectionViewerFrame.func_show = lambda: self._show(index=1)
         self.bodyPanel.add(self.selectionViewerFrame)
