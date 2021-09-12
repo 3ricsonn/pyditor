@@ -89,7 +89,9 @@ class PyditorApplication(tk.Frame):
 
         # -- selection viewer --
         # bind functions when selection viewer shows or hides
-        self.selectionViewerFrame.bind_hide_func(lambda: self._hide(index=1, newpos=1330))
+        self.selectionViewerFrame.bind_hide_func(
+            lambda: self._hide(index=1, newpos=1330)
+        )
         self.selectionViewerFrame.bind_show_func(lambda: self._show(index=1))
 
         # load document content if opened
