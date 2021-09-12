@@ -102,7 +102,7 @@ class CollapsibleFrame(tk.Frame):
 
         # == store attributes ==
         # stores the state the frame starts in
-        if state == "show" or state == "hide":
+        if state in ("show", "hide"):
             self.state = state
         else:
             raise ValueError("Attribute state must be ether show or hide")
