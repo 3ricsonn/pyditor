@@ -73,7 +73,9 @@ class PyditorApplication(tk.Frame):
 
         # == selection viewer ==
         # collapsible Frame as widget container
-        self.selectionViewerFrame = CollapsibleFrame(parent=self.bodyPanel, char=(">", "<"), align="right")
+        self.selectionViewerFrame = CollapsibleFrame(
+            parent=self.bodyPanel, char=(">", "<"), align="right"
+        )
         self.selectionViewerFrame.func_hide = lambda: self._hide(index=1, newpos=1330)
         self.selectionViewerFrame.func_show = lambda: self._show(index=1)
         self.bodyPanel.add(self.selectionViewerFrame)

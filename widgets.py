@@ -1,10 +1,7 @@
 import tkinter as tk
 import platform
 
-__all__ = [
-    "ScrollFrame",
-    "CollapsibleFrame"
-]
+__all__ = ["ScrollFrame", "CollapsibleFrame"]
 
 
 # ************************
@@ -97,7 +94,9 @@ class ScrollFrame(tk.Frame):
 class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
-    def __init__(self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs):
+    def __init__(
+        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+    ):
         super().__init__(master=parent, *args, **kwargs)
 
         # == store attributes ==
@@ -126,7 +125,9 @@ class CollapsibleFrame(tk.Frame):
         # == Components ==
         # -- declare components of the widget --
         self.frame = tk.Frame(master=self)
-        self._hideButton = tk.Button(master=self, text=self.char[0], padx=1, command=self._hide)
+        self._hideButton = tk.Button(
+            master=self, text=self.char[0], padx=1, command=self._hide
+        )
 
         # -- display components --
         self._hideButton.pack(fill="y", side=self.align[1])
