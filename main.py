@@ -46,7 +46,6 @@ class PyditorApplication(tk.Frame):
 
     def load_components(self) -> None:
         """Load the components for page-viewer"""
-
         # == toolbar ==
         toolbar = tk.Label(master=self.toolbarFrame, text="top_toolbar", bg="red")
         toolbar.pack(pady=10)
