@@ -111,6 +111,7 @@ class PyditorApplication(tk.Frame):
         self.update_editor()
 
     def update_editor(self):
+        """Updates the dimensions of the editor after sash been relocated"""
         self.bodyPanel.update()
         self.pageEditor.load_pages(self.PDFDocument)
 
