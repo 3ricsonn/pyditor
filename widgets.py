@@ -3,11 +3,7 @@ from PIL import Image, ImageTk
 import fitz  # PyMuPDF
 import platform
 
-__all__ = [
-    "ScrollFrame",
-    "CollapsibleFrame",
-    "PageViewer"
-]
+__all__ = ["ScrollFrame", "CollapsibleFrame", "PageViewer"]
 
 
 # ************************ #
@@ -104,7 +100,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -227,8 +223,9 @@ class PageViewer(ScrollFrame):
 
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""
-        fraction = (page//self.column) / (len(self.pages)//self.column+1)
-        self.canvas.yview_moveto(str(fraction))
+        self.canvas.yview_moveto(
+            str((page // self.column) / (len(self.pages) // self.column + 1))
+        )
 
     def clear(self) -> None:
         """Removes all widget within the frame"""
