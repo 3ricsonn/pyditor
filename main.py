@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter.filedialog import askopenfilename
 import fitz  # PyMuPDF
 
@@ -37,6 +38,7 @@ class PyditorApplication(tk.Frame):
         # -- document editor --
         self.editorFrame: tk.Frame = None
         self.pageEditor: PageViewer = None
+        self.editorColumnSetting: tk.OptionMenu = None
 
         # -- selection viewer --
         self.selectionViewerFrame: CollapsibleFrame = None
@@ -68,6 +70,24 @@ class PyditorApplication(tk.Frame):
         self.pageEditor = PageViewer(parent=self.editorFrame, column=2)
         self.pageEditor.pack(fill="both", expand=True)
 
+        # frame to store setting widgets
+        # self.editroSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")
+        # self.editroSettingsFrame.pack(fill="x", side="bottom", expand=True)
+
+        # - options -
+        # option menu to change the number of columns the document is displayed
+        column_nums = [
+            "1 site per row",
+            "2 sites per row",
+            "3 sites per row"
+        ]
+        # start value
+        start = tk.StringVar()
+        start.set(column_nums[1])
+        self.editorColumnSetting = tk.OptionMenu(self.editorFrame, start, *column_nums, command=self.update_column_value)
+        self.editorColumnSetting.config(width=12)
+        self.editorColumnSetting.pack(side="left", padx=5)
+
         # == selection viewer ==
         # collapsible Frame as widget container
         self.selectionViewerFrame = CollapsibleFrame(
@@ -89,8 +109,10 @@ class PyditorApplication(tk.Frame):
 
         # -- selection viewer --
         # bind functions when selection viewer shows or hides
-        self.selectionViewerFrame.bind_hide_func(lambda: self._hide(1, newpos=1330))
-        self.selectionViewerFrame.bind_show_func(lambda: self._show(1))
+        self.selectionViewerFrame.bind_hide_func(
+            func=lambda: self._hide(index=1, newpos=1330)
+        )
+        self.selectionViewerFrame.bind_show_func(func=lambda: self._show(index=1))
 
         # load document content if opened
         if self.PDFDocument:
@@ -112,6 +134,10 @@ class PyditorApplication(tk.Frame):
         """Updates the dimensions of the editor after sash been relocated"""
         self.bodyPanel.update()
         self.pageEditor.load_pages(self.PDFDocument)
+
+    def update_column_value(self, selection):
+        self.pageEditor.column = int(selection[0])
+        self.pageEditor.load_pages()
 
     def open_file(self):
         """Opens a filedialog and convert selected pdf-file to a 'fitz.Document'"""
