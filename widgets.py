@@ -188,8 +188,19 @@ class PageViewer(ScrollFrame):
         self.clear()
 
         for index, page in enumerate(document, start=1):
+            pix = page.get_pixmap()
+
+            # set the mode depending on alpha
+            mode = "RGBA" if pix.alpha else "RGB"
+            img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
+
+            # rescale image to fit in the frame
+            scale = ((self.viewPort.winfo_width() - 16) / self.column) / img.size[0]
+
+            scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
+
             # convert to a displayable tk-image
-            tkImg = ImageTk.PhotoImage(img)
+            tkImg = ImageTk.PhotoImage(scaleImg)
 
             labelImg = tk.Label(
                 master=self.viewPort,

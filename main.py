@@ -137,7 +137,7 @@ class PyditorApplication(tk.Frame):
 
     def update_column_value(self, selection):
         self.pageEditor.column = int(selection[0])
-        self.pageEditor.load_pages()
+        self.pageEditor.load_pages(self.PDFDocument)
 
     def open_file(self):
         """Opens a filedialog and convert selected pdf-file to a 'fitz.Document'"""
