@@ -92,16 +92,13 @@ class PyditorApplication(tk.Frame):
 
         # - options -
         # option menu to change the number of columns the document is displayed
-        column_nums = [
-            "1 site per row",
-            "2 sites per row",
-            "3 sites per row"
-        ]
+        column_nums = ["1 site per row", "2 sites per row", "3 sites per row"]
         # start value
         start = tk.StringVar()
         start.set(column_nums[1])
-        self.editorColumnSetting = tk.OptionMenu(self.editorFrame, start, *column_nums,
-                                                 command=self.update_column_value)
+        self.editorColumnSetting = tk.OptionMenu(
+            self.editorFrame, start, *column_nums, command=self.update_column_value
+        )
         self.editorColumnSetting.config(width=12)
         self.editorColumnSetting.pack(side="left", padx=5)
 
