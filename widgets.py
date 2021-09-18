@@ -1,7 +1,10 @@
-import tkinter as tk
-from PIL import Image, ImageTk
-import fitz  # PyMuPDF
 import platform
+import tkinter as tk
+import concurrent.futures
+import fitz  # PyMuPDF
+from PIL import Image, ImageTk
+
+from tests import timer
 
 __all__ = ["ScrollFrame", "CollapsibleFrame", "PageViewer"]
 
@@ -100,7 +103,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -178,25 +181,15 @@ class PageViewer(ScrollFrame):
         self.pages = []
         self.column = column
 
+    @timer
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
         # clear viewPort frame
         self.clear()
 
         for index, page in enumerate(document, start=1):
-            pix = page.get_pixmap()
-
-            # set the mode depending on alpha
-            mode = "RGBA" if pix.alpha else "RGB"
-            img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
-
-            # rescale image to fit in the frame
-            scale = ((self.viewPort.winfo_width() - 16) / self.column) / img.size[0]
-
-            scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
-
             # convert to a displayable tk-image
-            tkImg = ImageTk.PhotoImage(scaleImg)
+            tkImg = ImageTk.PhotoImage(img)
 
             labelImg = tk.Label(
                 master=self.viewPort,
@@ -231,7 +224,6 @@ class PageViewer(ScrollFrame):
         """Removes all widget within the frame"""
         for widget in self.viewPort.winfo_children():
             widget.destroy()
-
         self.pages.clear()
 
 
