@@ -220,6 +220,7 @@ class PageViewer(ScrollFrame):
             self.pages.append(labelImg)
 
     def convert_page(self, page):
+        """Covert a given page object to a displayable Image and resize it"""
         pix = page.get_pixmap()
 
         # set the mode depending on alpha
