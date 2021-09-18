@@ -153,6 +153,7 @@ class PyditorApplication(tk.Frame):
         self.pageEditor.load_pages(self.PDFDocument)
 
     def update_column_value(self, selection):
+        """Function to change the number of columns the document is displayed"""
         self.pageEditor.column = int(selection[0])
         self.pageEditor.load_pages(self.PDFDocument)
 
@@ -167,6 +168,7 @@ class PyditorApplication(tk.Frame):
             self.set_document(pdf_file)
 
     def set_document(self, doc: str) -> None:
+        """Create document from path and load pages onto the viewer-frames"""
         self.PDFDocument = fitz.Document(doc)
 
         self.pageViewer.load_pages(document=self.PDFDocument)
@@ -182,6 +184,7 @@ class PyditorApplication(tk.Frame):
         """Saves the edited pdf-file asking for a name"""
 
     def exit(self):
+        """Function to clean up and end the application"""
         self.PDFDocument.close()
         sys.exit(1)
 
