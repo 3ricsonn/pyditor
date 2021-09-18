@@ -236,8 +236,9 @@ class PageViewer(ScrollFrame):
 
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""
+        overlap = 1 if self.column >= 2 else 0
         self.canvas.yview_moveto(
-            str((page // self.column) / (len(self.pages) // self.column + 1))
+            str((page // self.column) / (len(self.pages) // self.column + overlap))
         )
 
     def clear(self) -> None:
