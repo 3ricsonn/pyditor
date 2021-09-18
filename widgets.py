@@ -103,7 +103,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
