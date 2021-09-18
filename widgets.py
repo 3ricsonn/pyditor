@@ -219,6 +219,20 @@ class PageViewer(ScrollFrame):
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)
 
+    def convert_page(self, page):
+        pix = page.get_pixmap()
+
+        # set the mode depending on alpha
+        mode = "RGBA" if pix.alpha else "RGB"
+        img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
+
+        # rescale image to fit in the frame
+        scale = ((self.frame_width - 16) / self.column) / img.size[0]
+
+        scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
+
+        return scaleImg
+
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""
         self.canvas.yview_moveto(
