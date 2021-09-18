@@ -1,10 +1,26 @@
+import getopt
+import os
+import sys
 import tkinter as tk
-from tkinter import ttk
 from tkinter.filedialog import askopenfilename
+
 import fitz  # PyMuPDF
 
-from widgets import CollapsibleFrame, PageViewer
 from components import SingleSelectablePV
+from widgets import CollapsibleFrame, PageViewer
+
+# Owned
+__author__ = "3ricsonn"
+__copyright__ = "Copyright 2021, 3ricsonn"
+__credits__ = ["3ricsonn"]
+__license__ = "GPLv3"
+__version__ = "0.0.2"
+__maintainer__ = "3ricsonn"
+__email__ = "3ricsonn@protonmail.com"
+__status__ = "DEV"
+
+# CONSTANTS
+DIRNAME = os.path.dirname(__file__)
 
 
 class PyditorApplication(tk.Frame):
@@ -84,7 +100,8 @@ class PyditorApplication(tk.Frame):
         # start value
         start = tk.StringVar()
         start.set(column_nums[1])
-        self.editorColumnSetting = tk.OptionMenu(self.editorFrame, start, *column_nums, command=self.update_column_value)
+        self.editorColumnSetting = tk.OptionMenu(self.editorFrame, start, *column_nums,
+                                                 command=self.update_column_value)
         self.editorColumnSetting.config(width=12)
         self.editorColumnSetting.pack(side="left", padx=5)
 
@@ -147,19 +164,26 @@ class PyditorApplication(tk.Frame):
         )
 
         if pdf_file:
-            self.PDFDocument = fitz.Document(pdf_file)
+            self.set_document(pdf_file)
 
-            self.pageViewer.load_pages(document=self.PDFDocument)
-            self.pageEditor.load_pages(document=self.PDFDocument)
+    def set_document(self, doc: str) -> None:
+        self.PDFDocument = fitz.Document(doc)
 
-            # rename title with according file path
-            self.parent.title("Pyditor - editing: " + pdf_file)
+        self.pageViewer.load_pages(document=self.PDFDocument)
+        self.pageEditor.load_pages(document=self.PDFDocument)
+
+        # rename title with according file path
+        self.parent.title("Pyditor - editing: " + doc)
 
     def save_file(self):
         """Saves the edited pdf file using the metadata title as name"""
 
     def save_file_name(self):
         """Saves the edited pdf-file asking for a name"""
+
+    def exit(self):
+        self.PDFDocument.close()
+        sys.exit(1)
 
 
 def print_sash_pos():
@@ -178,6 +202,16 @@ if __name__ == "__main__":
     app = PyditorApplication(rootWindow)
     app.pack(fill="both", expand=True)
     app.load_components()
+
+    # handling command line commands
+    opts, _ = getopt.getopt(sys.argv[1:], "f:v")
+    for opt, arg in opts:
+        # open file via commandline
+        if opt == "-f":
+            app.set_document(os.path.join(DIRNAME, arg))
+        elif opt == "-v":
+            print(f"Current version: {__version__}, status: {__status__}")
+            app.exit()
 
     # == creating menus ==
     # the main menu
@@ -203,4 +237,4 @@ if __name__ == "__main__":
     try:
         rootWindow.mainloop()
     finally:
-        app.PDFDocument.close()
+        app.exit()
