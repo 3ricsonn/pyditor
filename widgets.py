@@ -24,7 +24,7 @@ class ScrollFrame(tk.Frame):
             self.canvas, background="#ffffff"
         )  # place a frame on the canvas, this frame will hold the child widgets
         self.vsb = tk.Scrollbar(
-            self, orient="vertical", command=self.canvas.yview
+            self, orient="vertical", command=self.scrolling_update
         )  # place a scrollbar on self
         self.canvas.configure(
             yscrollcommand=self.vsb.set
@@ -56,6 +56,13 @@ class ScrollFrame(tk.Frame):
         # perform an initial stretch on render,
         # otherwise the scroll region has a tiny border until the first resize
         self.on_frame_configure(None)
+
+    def scrolling_update(self, *args, **kwargs):
+        self.update_pages()
+        return self.canvas.yview(*args, **kwargs)
+
+    def update_pages(self):
+        pass
 
     def on_frame_configure(self, _unused):
         """Reset the scroll region to encompass the inner frame"""
@@ -176,54 +183,75 @@ class PageViewer(ScrollFrame):
     """Scrollable Frame to display pages of a pdf document"""
 
     def __init__(self, parent, column=1, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-
         self.pages = []
         self.column = column
         self.frame_width: int = 0
+        self.current = 0
+
+        super().__init__(parent, *args, **kwargs)
 
     @timer
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
+        self.document = document
+        if len(document) == 0:
+            return None
+
         # clear viewPort frame
         self.clear()
         self.frame_width = self.viewPort.winfo_width()
+
+        img = self.convert_page(document[0])
+        placeholder = ImageTk.PhotoImage(Image.new("RGBA", img.size))
+
+        for index in range(0, self.current):
+            self.blit_page(placeholder, index)
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             if len(document) <= 1 * self.column * 2:
                 imgs = executor.map(self.convert_page, document)
             else:
-                imgs = executor.map(self.convert_page, document.pages(0, 1*self.column*2, 1))
+                imgs = executor.map(self.convert_page, document.pages(0, 1 * self.column * 2, 1))
 
-        placeholder =
-        print(self.canvas.yview()[1]*(len(document) // self.column + 1) * self.column)
-
-        for index, img in enumerate(imgs, start=1):
+        for index, img in enumerate(imgs, start=self.current):
             # convert to a displayable tk-image
             tkImg = ImageTk.PhotoImage(img)
 
-            labelImg = tk.Label(
-                master=self.viewPort,
-                image=tkImg,
-                compound="top",
-                padx=3,
-            )
-            labelImg.image = tkImg
-            labelImg.id = index
-
-            # place label in frame
-            if self.column == 1:
-                labelImg.grid(column=0, row=index - 1, pady=5, padx=5)
-            else:
-                labelImg.grid(
-                    row=(index - 1) // self.column,
-                    column=(index - 1) % self.column,
-                    pady=5,
-                    padx=5,
-                )
+            labelImg = self.blit_page(tkImg, index)
 
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)
+
+        for index in range(self.current + 1 * self.column * 2, len(document) - 1):
+            self.blit_page(placeholder, index)
+
+    def blit_page(self, page, index):
+        labelImg = tk.Label(
+            master=self.viewPort,
+            image=page,
+            compound="top",
+            padx=3,
+        )
+        labelImg.image = page
+
+        # place label in frame
+        if self.column == 1:
+            labelImg.grid(column=0, row=index, pady=5, padx=5)
+        else:
+            labelImg.grid(
+                row=index // self.column,
+                column=index % self.column,
+                pady=5,
+                padx=5,
+            )
+
+        return labelImg
+
+    def update_pages(self):
+        current = int(self.canvas.yview()[1]*(len(self.pages) // self.column + 1)*self.column)
+        if self.current != current:
+            self.load_pages(self.document)
+            self.current = current
 
     def convert_page(self, page):
         pix = page.get_pixmap()
