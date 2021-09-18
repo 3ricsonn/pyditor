@@ -180,27 +180,21 @@ class PageViewer(ScrollFrame):
 
         self.pages = []
         self.column = column
+        self.frame_width: int = 0
 
     @timer
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
         # clear viewPort frame
         self.clear()
+        self.frame_width = self.viewPort.winfo_width()
 
-        for index, page in enumerate(document, start=1):
-            pix = page.get_pixmap()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            imgs = executor.map(self.convert_page, document)
 
-            # set the mode depending on alpha
-            mode = "RGBA" if pix.alpha else "RGB"
-            img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
-
-            # rescale image to fit in the frame
-            scale = ((self.viewPort.winfo_width() - 16) / self.column) / img.size[0]
-
-            scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
-
+        for index, img in enumerate(imgs, start=1):
             # convert to a displayable tk-image
-            tkImg = ImageTk.PhotoImage(scaleImg)
+            tkImg = ImageTk.PhotoImage(img)
 
             labelImg = tk.Label(
                 master=self.viewPort,
@@ -224,6 +218,21 @@ class PageViewer(ScrollFrame):
 
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)
+
+    def convert_page(self, page):
+        """Covert a given page object to a displayable Image and resize it"""
+        pix = page.get_pixmap()
+
+        # set the mode depending on alpha
+        mode = "RGBA" if pix.alpha else "RGB"
+        img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
+
+        # rescale image to fit in the frame
+        scale = ((self.frame_width - 16) / self.column) / img.size[0]
+
+        scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
+
+        return scaleImg
 
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""

@@ -1,6 +1,8 @@
 import tkinter as tk
-from widgets import PageViewer
+
 import fitz  # PyMuPDF
+
+from widgets import PageViewer
 
 __all__ = ["SingleSelectablePV"]
 
@@ -42,4 +44,4 @@ class SingleSelectablePV(PageViewer):
 
         # jump with added page viewer to selected page
         if self._related:
-            self._related.jump_to_page(int(event.widget["text"].split(" ")[-1]) - 1)
+            self._related.jump_to_page(event.widget.id - 1)
