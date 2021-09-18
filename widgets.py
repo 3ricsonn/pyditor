@@ -190,7 +190,13 @@ class PageViewer(ScrollFrame):
         self.frame_width = self.viewPort.winfo_width()
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            imgs = executor.map(self.convert_page, document)
+            if len(document) <= 1 * self.column * 2:
+                imgs = executor.map(self.convert_page, document)
+            else:
+                imgs = executor.map(self.convert_page, document.pages(0, 1*self.column*2, 1))
+
+        placeholder =
+        print(self.canvas.yview()[1]*(len(document) // self.column + 1) * self.column)
 
         for index, img in enumerate(imgs, start=1):
             # convert to a displayable tk-image
