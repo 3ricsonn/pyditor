@@ -166,7 +166,6 @@ class PyditorApplication(tk.Frame):
 
     def set_document(self, doc: str) -> None:
         """Create document from path and load pages onto the viewer-frames"""
-
         self.PDFDocument = fitz.Document(doc)
 
         self.pageViewer.load_pages(document=self.PDFDocument)
@@ -183,7 +182,6 @@ class PyditorApplication(tk.Frame):
 
     def exit(self):
         """Function to clean up and end the application"""
-
         self.PDFDocument.close()
         sys.exit(1)
 

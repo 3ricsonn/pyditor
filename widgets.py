@@ -204,7 +204,10 @@ class PageViewer(ScrollFrame):
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)
 
+        return None
+
     def blit_page(self, page, index):
+        """Blit given Image on label and returns it"""
         labelImg = tk.Label(
             master=self.viewPort,
             image=page,
@@ -227,12 +230,15 @@ class PageViewer(ScrollFrame):
         return labelImg
 
     # def update_vision(self):
-    #     current = int(self.canvas.yview()[1] * (len(self.pages) // self.column + 1) * self.column)
+    #     current = int(
+    #        self.canvas.yview()[1] * (len(self.pages) // self.column + 1) * self.column
+    #     )
     #     if self.current != current:
     #         self.load_pages(self.document)
     #         self.current = current
 
     def update_pages(self, document: fitz.Document):
+        """Recreate images and blit it on existing labels"""
         self.frame_width = self.viewPort.winfo_width()
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
