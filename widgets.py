@@ -176,15 +176,18 @@ class PageViewer(ScrollFrame):
     """Scrollable Frame to display pages of a pdf document"""
 
     def __init__(self, parent, column=1, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-
         self.pages = []
         self.column = column
-        self.frame_width: int = 0
+        self.frame_width = 0
 
-    @timer
+        super().__init__(parent, *args, **kwargs)
+
+    # @timer
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
+        if len(document) == 0:
+            return None
+
         # clear viewPort frame
         self.clear()
         self.frame_width = self.viewPort.winfo_width()
@@ -192,32 +195,61 @@ class PageViewer(ScrollFrame):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             imgs = executor.map(self.convert_page, document)
 
-        for index, img in enumerate(imgs, start=1):
+        for index, img in enumerate(imgs):
             # convert to a displayable tk-image
             tkImg = ImageTk.PhotoImage(img)
 
-            labelImg = tk.Label(
-                master=self.viewPort,
-                image=tkImg,
-                compound="top",
-                padx=3,
-            )
-            labelImg.image = tkImg
-            labelImg.id = index
-
-            # place label in frame
-            if self.column == 1:
-                labelImg.grid(column=0, row=index - 1, pady=5, padx=5)
-            else:
-                labelImg.grid(
-                    row=(index - 1) // self.column,
-                    column=(index - 1) % self.column,
-                    pady=5,
-                    padx=5,
-                )
+            labelImg = self.blit_page(tkImg, index)
 
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)
+
+        return None
+
+    def blit_page(self, page, index):
+        """Blit given Image on label and returns it"""
+        labelImg = tk.Label(
+            master=self.viewPort,
+            image=page,
+            compound="top",
+            padx=3,
+        )
+        labelImg.image = page
+
+        # place label in frame
+        if self.column == 1:
+            labelImg.grid(column=0, row=index, pady=5, padx=5)
+        else:
+            labelImg.grid(
+                row=index // self.column,
+                column=index % self.column,
+                pady=5,
+                padx=5,
+            )
+
+        return labelImg
+
+    # def update_vision(self):
+    #     current = int(
+    #        self.canvas.yview()[1] * (len(self.pages) // self.column + 1) * self.column
+    #     )
+    #     if self.current != current:
+    #         self.load_pages(self.document)
+    #         self.current = current
+
+    def update_pages(self, document: fitz.Document):
+        """Recreate images and blit it on existing labels"""
+        self.frame_width = self.viewPort.winfo_width()
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            imgs = executor.map(self.convert_page, document)
+
+        for index, img in enumerate(imgs):  # , start=self.current):
+            # convert to a displayable tk-image
+            tkImg = ImageTk.PhotoImage(img)
+
+            self.pages[index].config(image=tkImg)
+            self.pages[index].image = tkImg
 
     def convert_page(self, page):
         """Covert a given page object to a displayable Image and resize it"""
