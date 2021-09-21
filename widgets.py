@@ -110,7 +110,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -254,6 +254,7 @@ class PageViewer(ScrollFrame):
             self.current = current
 
     def convert_page(self, page):
+        """Covert a given page object to a displayable Image and resize it"""
         pix = page.get_pixmap()
 
         # set the mode depending on alpha

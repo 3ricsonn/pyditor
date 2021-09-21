@@ -3,6 +3,7 @@ import time
 
 def timer(function):
     """Wrapper function to measure executing time"""
+
     def inner_function(*args, **kwargs):
         """Function to measure the executing time"""
         start = time.perf_counter()
