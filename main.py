@@ -183,7 +183,6 @@ class PyditorApplication(tk.Frame):
 
     def exit(self):
         """Function to clean up and end the application"""
-
         self.PDFDocument.close()
         sys.exit(1)
 
@@ -206,12 +205,12 @@ if __name__ == "__main__":
     app.load_components()
 
     # handling command line commands
-    opts, _ = getopt.getopt(sys.argv[1:], "f:v")
+    opts, _ = getopt.getopt(sys.argv[1:], shortopts="f:", longopts=["version"])
     for opt, arg in opts:
         # open file via commandline
         if opt == "-f":
             app.set_document(os.path.join(DIRNAME, arg))
-        elif opt == "-v":
+        elif opt == "--version":
             print(f"Current version: {__version__}, status: {__status__}")
             app.exit()
 
