@@ -233,8 +233,8 @@ class PageViewer(ScrollFrame):
         return labelImg
 
     def get_scaling(self):
+        """Gets the selected scaling and calculate the scaling factor"""
         scale = self.scale.get() if type(self.scale) == tk.StringVar else self.scale
-        print(int(scale[:-1]) / 100)
         return int(scale[:-1]) / 100
 
     # def update_vision(self):
@@ -242,7 +242,7 @@ class PageViewer(ScrollFrame):
     #        self.canvas.yview()[1] * (len(self.pages) // self.column + 1) * self.column
     #     )
     #     if self.current != current:
-    #         self.load_pages(self.document)
+    #         self.update_pages(self.document)
     #         self.current = current
 
     def update_pages(self, document: fitz.Document):
