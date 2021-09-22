@@ -2,6 +2,7 @@ import getopt
 import os
 import sys
 import tkinter as tk
+from tkinter import ttk
 from tkinter.filedialog import askopenfilename
 
 import fitz  # PyMuPDF
@@ -48,16 +49,28 @@ class PyditorApplication(tk.Frame):
 
         # == components definitions ==
         # -- page viewer --
-        self.pageViewerFrame: CollapsibleFrame = None
-        self.pageViewer: SingleSelectablePV = None
+        self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel)
+        self.pageViewer = SingleSelectablePV(parent=self.pageViewerFrame.frame)
 
         # -- document editor --
-        self.editorFrame: tk.Frame = None
-        self.pageEditor: PageViewer = None
-        self.editorColumnSetting: tk.OptionMenu = None
+        self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
+        self.pageEditor = PageViewer(parent=self.editorFrame, column=2)
+
+        column_nums = ["1 site per row", "2 sites per row", "3 sites per row"]
+        # start value
+        start = tk.StringVar()
+        start.set(column_nums[1])
+        self.editorColumnSetting = ttk.OptionMenu(
+            self.editorFrame, start, column_nums[1], *column_nums, command=self.update_column_value
+        )
+
+        states = [f"{i}%" for i in range(50, 110, 10)] + ["125%", "150%", "200%"]
+        self.editorScalingSetting: ttk.Combobox = ttk.Combobox(master=self.editorFrame, values=states)
 
         # -- selection viewer --
-        self.selectionViewerFrame: CollapsibleFrame = None
+        self.selectionViewerFrame = CollapsibleFrame(
+            parent=self.bodyPanel, state="hide", char=(">", "<"), align="right"
+        )
 
         # create placeholder document
         self.PDFDocument: fitz.Document = fitz.Document()
@@ -70,43 +83,37 @@ class PyditorApplication(tk.Frame):
 
         # == page viewer ==
         # collapsible Frame as widget container
-        self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel)
         self.bodyPanel.add(self.pageViewerFrame)
 
         # Scrollable Frame to display pages of the document
-        self.pageViewer = SingleSelectablePV(parent=self.pageViewerFrame.frame)
         self.pageViewer.pack(fill="both", expand=True)
 
         # == main document editor ==
         # Frame as widget container
-        self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
         self.bodyPanel.add(self.editorFrame)
+        self.bodyPanel.grid_columnconfigure(0, weight=1)
+        self.bodyPanel.grid_rowconfigure(0, weight=1)
+        self.bodyPanel.grid_columnconfigure(1, weight=1)
+        self.bodyPanel.grid_rowconfigure(1, weight=1)
+        self.bodyPanel.grid_columnconfigure(2, weight=1)
 
         # Scrollable Frame to display and edit pages of the document
-        self.pageEditor = PageViewer(parent=self.editorFrame, column=2)
-        self.pageEditor.pack(fill="both", expand=True)
+        self.pageEditor.grid(row=0, column=0, columnspan=3, sticky='NESW')
 
         # frame to store setting widgets
-        # self.editroSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")
-        # self.editroSettingsFrame.pack(fill="x", side="bottom", expand=True)
+        # self.editorSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")
+        # self.editorSettingsFrame.pack(fill="x", side="bottom", expand=True)
 
         # - options -
         # option menu to change the number of columns the document is displayed
-        column_nums = ["1 site per row", "2 sites per row", "3 sites per row"]
-        # start value
-        start = tk.StringVar()
-        start.set(column_nums[1])
-        self.editorColumnSetting = tk.OptionMenu(
-            self.editorFrame, start, *column_nums, command=self.update_column_value
-        )
         self.editorColumnSetting.config(width=12)
-        self.editorColumnSetting.pack(side="left", padx=5)
+        self.editorColumnSetting.grid(column=0, row=1)
+
+        # options menu to change the scaling factor
+        self.editorScalingSetting.grid(row=1, column=1, columnspan=2)
 
         # == selection viewer ==
         # collapsible Frame as widget container
-        self.selectionViewerFrame = CollapsibleFrame(
-            parent=self.bodyPanel, state="hide", char=(">", "<"), align="right"
-        )
         self.bodyPanel.add(self.selectionViewerFrame)
 
         # == Sashes ==
