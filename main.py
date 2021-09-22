@@ -34,6 +34,16 @@ class PyditorApplication(tk.Frame):
         self.parent = parent
         self.sashpos = [(190, 1), (1150, 1)]
 
+        # == Variables ==
+        # variables for the column settings
+        column_nums = ["1 site per row", "2 sites per row", "3 sites per row"]
+        start = tk.StringVar()
+        start.set(column_nums[1])
+
+        # variables for the scaling settings
+        states = [f"{i}%" for i in range(50, 110, 10)] + ["125%", "150%", "200%"]
+        scaleVar = tk.StringVar()
+
         # == divide window in panels ==
         # -- create toolbar panel--
         self.toolbarPanel = tk.PanedWindow(master=self, orient=tk.VERTICAL)
@@ -54,18 +64,15 @@ class PyditorApplication(tk.Frame):
 
         # -- document editor --
         self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
-        self.pageEditor = PageViewer(parent=self.editorFrame, column=2)
+        self.pageEditor = PageViewer(parent=self.editorFrame, column=2, scale=scaleVar)
 
-        column_nums = ["1 site per row", "2 sites per row", "3 sites per row"]
-        # start value
-        start = tk.StringVar()
-        start.set(column_nums[1])
+        # frame to store setting widgets
+        self.editorSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")
         self.editorColumnSetting = ttk.OptionMenu(
-            self.editorFrame, start, column_nums[1], *column_nums, command=self.update_column_value
+            self.editorSettingsFrame, start, column_nums[1], *column_nums, command=self.update_column_value
         )
 
-        states = [f"{i}%" for i in range(50, 110, 10)] + ["125%", "150%", "200%"]
-        self.editorScalingSetting: ttk.Combobox = ttk.Combobox(master=self.editorFrame, values=states)
+        self.editorScalingSetting = ttk.Combobox(master=self.editorSettingsFrame, textvariable=scaleVar, values=states)
 
         # -- selection viewer --
         self.selectionViewerFrame = CollapsibleFrame(
@@ -86,31 +93,26 @@ class PyditorApplication(tk.Frame):
         self.bodyPanel.add(self.pageViewerFrame)
 
         # Scrollable Frame to display pages of the document
-        self.pageViewer.pack(fill="both", expand=True)
+        self.pageViewer.pack(fill="y", expand=True)
 
         # == main document editor ==
         # Frame as widget container
         self.bodyPanel.add(self.editorFrame)
-        self.bodyPanel.grid_columnconfigure(0, weight=1)
-        self.bodyPanel.grid_rowconfigure(0, weight=1)
-        self.bodyPanel.grid_columnconfigure(1, weight=1)
-        self.bodyPanel.grid_rowconfigure(1, weight=1)
-        self.bodyPanel.grid_columnconfigure(2, weight=1)
 
         # Scrollable Frame to display and edit pages of the document
-        self.pageEditor.grid(row=0, column=0, columnspan=3, sticky='NESW')
+        self.pageEditor.pack(fill="both", expand=True)
 
         # frame to store setting widgets
-        # self.editorSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")
-        # self.editorSettingsFrame.pack(fill="x", side="bottom", expand=True)
+        self.editorSettingsFrame.pack(fill="both")
 
         # - options -
         # option menu to change the number of columns the document is displayed
         self.editorColumnSetting.config(width=12)
-        self.editorColumnSetting.grid(column=0, row=1)
+        self.editorColumnSetting.grid(column=0, row=0, padx=5)
 
         # options menu to change the scaling factor
-        self.editorScalingSetting.grid(row=1, column=1, columnspan=2)
+        self.editorScalingSetting.grid(row=0, column=1, padx=5)
+        self.editorScalingSetting.current(5)
 
         # == selection viewer ==
         # collapsible Frame as widget container

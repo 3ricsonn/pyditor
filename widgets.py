@@ -1,6 +1,7 @@
 import platform
 import tkinter as tk
 import concurrent.futures
+import itertools
 import fitz  # PyMuPDF
 from PIL import Image, ImageTk
 
@@ -103,7 +104,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -175,10 +176,11 @@ class CollapsibleFrame(tk.Frame):
 class PageViewer(ScrollFrame):
     """Scrollable Frame to display pages of a pdf document"""
 
-    def __init__(self, parent, column=1, *args, **kwargs):
+    def __init__(self, parent, column=1, scale="100%", *args, **kwargs):
         self.pages = []
         self.column = column
         self.frame_width = 0
+        self.scale = scale
 
         super().__init__(parent, *args, **kwargs)
 
@@ -192,8 +194,9 @@ class PageViewer(ScrollFrame):
         self.clear()
         self.frame_width = self.viewPort.winfo_width()
 
+        scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            imgs = executor.map(self.convert_page, document)
+            imgs = executor.map(self.convert_page, document, itertools.repeat(scale, times=len(document)))
 
         for index, img in enumerate(imgs):
             # convert to a displayable tk-image
@@ -229,6 +232,11 @@ class PageViewer(ScrollFrame):
 
         return labelImg
 
+    def get_scaling(self):
+        scale = self.scale.get() if type(self.scale) == tk.StringVar else self.scale
+        print(int(scale[:-1]) / 100)
+        return int(scale[:-1]) / 100
+
     # def update_vision(self):
     #     current = int(
     #        self.canvas.yview()[1] * (len(self.pages) // self.column + 1) * self.column
@@ -241,8 +249,9 @@ class PageViewer(ScrollFrame):
         """Recreate images and blit it on existing labels"""
         self.frame_width = self.viewPort.winfo_width()
 
+        scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            imgs = executor.map(self.convert_page, document)
+            imgs = executor.map(self.convert_page, document, itertools.repeat(scale, times=len(document)))
 
         for index, img in enumerate(imgs):  # , start=self.current):
             # convert to a displayable tk-image
@@ -251,7 +260,7 @@ class PageViewer(ScrollFrame):
             self.pages[index].config(image=tkImg)
             self.pages[index].image = tkImg
 
-    def convert_page(self, page):
+    def convert_page(self, page, scaling: int):
         """Covert a given page object to a displayable Image and resize it"""
         pix = page.get_pixmap()
 
@@ -260,7 +269,7 @@ class PageViewer(ScrollFrame):
         img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
 
         # rescale image to fit in the frame
-        scale = ((self.frame_width - 16) / self.column) / img.size[0]
+        scale = (((self.frame_width - 16) / self.column) / img.size[0]) * scaling
 
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 
