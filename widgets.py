@@ -238,7 +238,7 @@ class PageViewer(ScrollFrame):
 
     def get_scaling(self):
         """Gets the selected scaling and calculate the scaling factor"""
-        scale = self.scale.get() if type(self.scale) == tk.StringVar else self.scale
+        scale = self.scale.get() if type(self.scale) is tk.StringVar else self.scale
         return int(scale[:-1]) / 100
 
     # def update_vision(self):
