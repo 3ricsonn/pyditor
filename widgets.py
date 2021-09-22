@@ -104,7 +104,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -196,7 +196,11 @@ class PageViewer(ScrollFrame):
 
         scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            imgs = executor.map(self.convert_page, document, itertools.repeat(scale, times=len(document)))
+            imgs = executor.map(
+                self.convert_page,
+                document,
+                itertools.repeat(scale, times=len(document)),
+            )
 
         for index, img in enumerate(imgs):
             # convert to a displayable tk-image
@@ -251,7 +255,11 @@ class PageViewer(ScrollFrame):
 
         scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            imgs = executor.map(self.convert_page, document, itertools.repeat(scale, times=len(document)))
+            imgs = executor.map(
+                self.convert_page,
+                document,
+                itertools.repeat(scale, times=len(document)),
+            )
 
         for index, img in enumerate(imgs):  # , start=self.current):
             # convert to a displayable tk-image

@@ -69,10 +69,16 @@ class PyditorApplication(tk.Frame):
         # frame to store setting widgets
         self.editorSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")
         self.editorColumnSetting = ttk.OptionMenu(
-            self.editorSettingsFrame, start, column_nums[1], *column_nums, command=self.update_column_value
+            self.editorSettingsFrame,
+            start,
+            column_nums[1],
+            *column_nums,
+            command=self.update_column_value,
         )
 
-        self.editorScalingSetting = ttk.Combobox(master=self.editorSettingsFrame, textvariable=scaleVar, values=states)
+        self.editorScalingSetting = ttk.Combobox(
+            master=self.editorSettingsFrame, textvariable=scaleVar, values=states
+        )
 
         # -- selection viewer --
         self.selectionViewerFrame = CollapsibleFrame(
