@@ -147,7 +147,7 @@ class PyditorApplication(tk.Frame):
     def update_editor(self):
         """Updates the dimensions of the editor after sash been relocated"""
         self.bodyPanel.update()
-        self.pageEditor.load_pages(self.PDFDocument)
+        self.pageEditor.update_pages(self.PDFDocument)
 
     def update_column_value(self, selection):
         """Function to change the number of columns the document is displayed"""
@@ -166,7 +166,6 @@ class PyditorApplication(tk.Frame):
 
     def set_document(self, doc: str) -> None:
         """Create document from path and load pages onto the viewer-frames"""
-
         self.PDFDocument = fitz.Document(doc)
 
         self.pageViewer.load_pages(document=self.PDFDocument)
