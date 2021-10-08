@@ -5,8 +5,6 @@ import itertools
 import fitz  # PyMuPDF
 from PIL import Image, ImageTk
 
-from tests import timer
-
 __all__ = ["ScrollFrame", "CollapsibleFrame", "PageViewer"]
 
 
@@ -180,11 +178,11 @@ class PageViewer(ScrollFrame):
         self.pages = []
         self.column = column
         self.frame_width = 0
+        self.frame_height = 0
         self.scale = scale
 
         super().__init__(parent, *args, **kwargs)
 
-    # @timer
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
         if len(document) == 0:
@@ -192,7 +190,10 @@ class PageViewer(ScrollFrame):
 
         # clear viewPort frame
         self.clear()
-        self.frame_width = self.viewPort.winfo_width()
+
+        # get page viewer properties
+        self.frame_width = self.winfo_width()
+        self.frame_height = self.winfo_height()
 
         scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -225,7 +226,7 @@ class PageViewer(ScrollFrame):
 
         # place label in frame
         if self.column == 1:
-            labelImg.grid(column=0, row=index, pady=5, padx=5)
+            labelImg.pack(pady=5, padx=5)
         else:
             labelImg.grid(
                 row=index // self.column,
@@ -251,7 +252,9 @@ class PageViewer(ScrollFrame):
 
     def update_pages(self, document: fitz.Document):
         """Recreate images and blit it on existing labels"""
-        self.frame_width = self.viewPort.winfo_width()
+        # get page viewer properties
+        self.frame_width = self.winfo_width()
+        self.frame_height = self.winfo_height()
 
         scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -277,7 +280,10 @@ class PageViewer(ScrollFrame):
         img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
 
         # rescale image to fit in the frame
-        scale = (((self.frame_width - 16) / self.column) / img.size[0]) * scaling
+        if self.column == 1:
+            scale = (self.frame_height / img.size[1]) * scaling
+        else:
+            scale = (((self.frame_width - 16) / self.column) / img.size[0]) * scaling
 
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 

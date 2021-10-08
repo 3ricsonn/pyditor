@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import Image
 
 import fitz  # PyMuPDF
 
@@ -30,6 +31,21 @@ class SingleSelectablePV(PageViewer):
 
             # bind an event whenever a page is clicked to select it
             label.bind("<Button-1>", func=self.select_page)
+
+    def convert_page(self, page, scaling: int):
+        """Covert a given page object to a displayable Image and resize it"""
+        pix = page.get_pixmap()
+
+        # set the mode depending on alpha
+        mode = "RGBA" if pix.alpha else "RGB"
+        img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
+
+        # rescale image to fit in the frame
+        scale = (((self.frame_width - 16) / self.column) / img.size[0]) * scaling
+
+        scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
+
+        return scaleImg
 
     def clear_selection(self) -> None:
         """Remove selected pages from selection and reset page background"""
