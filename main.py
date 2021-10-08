@@ -42,7 +42,7 @@ class PyditorApplication(tk.Frame):
 
         # variables for the scaling settings
         states = [f"{i}%" for i in range(50, 110, 10)] + ["125%", "150%", "200%"]
-        scaleVar = tk.StringVar()
+        self.scaleVar = tk.StringVar()
 
         # == divide window in panels ==
         # -- create toolbar panel--
@@ -64,7 +64,7 @@ class PyditorApplication(tk.Frame):
 
         # -- document editor --
         self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
-        self.pageEditor = PageViewer(parent=self.editorFrame, column=2, scale=scaleVar)
+        self.pageEditor = PageViewer(parent=self.editorFrame, column=2, scale=self.scaleVar, direction="both")
 
         # frame to store setting widgets
         self.editorSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")
@@ -77,7 +77,7 @@ class PyditorApplication(tk.Frame):
         )
 
         self.editorScalingSetting = ttk.Combobox(
-            master=self.editorSettingsFrame, textvariable=scaleVar, values=states
+            master=self.editorSettingsFrame, textvariable=self.scaleVar, values=states
         )
 
         # -- selection viewer --
@@ -114,7 +114,7 @@ class PyditorApplication(tk.Frame):
         # - options -
         # option menu to change the number of columns the document is displayed
         self.editorColumnSetting.config(width=12)
-        self.editorColumnSetting.grid(column=0, row=0, padx=5)
+        self.editorColumnSetting.grid(column=0, row=0, padx=5, pady=2)
 
         # options menu to change the scaling factor
         self.editorScalingSetting.grid(row=0, column=1, padx=5)
@@ -135,6 +135,10 @@ class PyditorApplication(tk.Frame):
         self.pageViewerFrame.bind_hide_func(func=lambda: self._hide(index=0, newpos=20))
         self.pageViewerFrame.bind_show_func(func=lambda: self._show(index=0))
         self.pageViewer.add_page_viewer_relation(widget=self.pageEditor)
+
+        # bind functions updating pages when scale changed
+        self.editorScalingSetting.bind("<<ComboboxSelected>>", self.update_editor)
+        self.editorScalingSetting.bind("<Return>", self.update_editor)
 
         # -- selection viewer --
         # bind functions when selection viewer shows or hides
@@ -159,13 +163,14 @@ class PyditorApplication(tk.Frame):
         self.bodyPanel.sash_place(index, *self.sashpos[index])
         self.update_editor()
 
-    def update_editor(self):
+    def update_editor(self, *_):
         """Updates the dimensions of the editor after sash been relocated"""
         self.bodyPanel.update()
         self.pageEditor.update_pages(self.PDFDocument)
 
     def update_column_value(self, selection):
         """Function to change the number of columns the document is displayed"""
+        self.scaleVar.set("100%")
         self.pageEditor.column = int(selection[0])
         self.pageEditor.load_pages(self.PDFDocument)
 

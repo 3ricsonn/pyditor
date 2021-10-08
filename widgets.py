@@ -11,63 +11,63 @@ __all__ = ["ScrollFrame", "CollapsibleFrame", "PageViewer"]
 # ************************ #
 #  Scrollable Frame Class  #
 # ************************ #
-# (origin: https://gist.github.com/mp035/9f2027c3ef9172264532fcd6262f3b01)
+# (inspired by:
+#  - https://github.com/RomneyDa/tkinter-scrollable-frame/blob/master/ScrollableFrame/ScrollableFrame.py
+#  - https://gist.github.com/mp035/9f2027c3ef9172264532fcd6262f3b01
+# )
 class ScrollFrame(tk.Frame):
     """A Scrollable Frame Class"""
 
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+        super().__init__(parent)
 
         self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
         self.viewPort = tk.Frame(
             self.canvas, background="#ffffff"
         )  # place a frame on the canvas, this frame will hold the child widgets
-        self.vsb = tk.Scrollbar(
-            self, orient="vertical", command=self.canvas.yview
-        )  # place a scrollbar on self
-        self.canvas.configure(
-            yscrollcommand=self.vsb.set
-        )  # attach scrollbar action to scroll of canvas
 
-        # pack scrollbar to right of self
-        self.vsb.pack(side="right", fill="y")
-        # pack canvas to left of self and expand to fil
-        self.canvas.pack(side="left", fill="both", expand=True)
-        # add view port frame to canvas
-        self.canvas_window = self.canvas.create_window(
-            (4, 4), window=self.viewPort, anchor="nw", tags="self.viewPort"
-        )
+        # CUSTOM OPTION
+        # Determines if there will be just a horizontal, just a vertical, or both scroll bars on the frame
+        if 'direction' in kwargs and kwargs['direction'] in ['both', 'horizontal', 'vertical']:
+            self.direction = kwargs['direction']
+            kwargs.pop('direction')
+        else:
+            self.direction = 'both'
 
-        self.viewPort.bind(
-            "<Configure>", self.on_frame_configure
-        )  # bind an event whenever the size of the viewPort frame changes.
-        self.canvas.bind(
-            "<Configure>", self.on_canvas_configure
-        )  # bind an event whenever the size of the canvas frame changes.
+        # config_sf function applies any remaining keyword properties
+        self.config_sf(**kwargs)
 
-        self.viewPort.bind(
-            "<Enter>", self.on_enter
-        )  # bind wheel events when the cursor enters the control
-        self.viewPort.bind(
-            "<Leave>", self.on_leave
-        )  # unbind wheel events when the cursor leaves the control
+        self.viewPort.bind("<Configure>", self._on_frame_change)
+        self.canvas.bind("<Configure>", self._on_canvas_change)
+        self.canvas_window = self.canvas.create_window((0, 0), window=self.viewPort, anchor="nw")
 
-        # perform an initial stretch on render,
-        # otherwise the scroll region has a tiny border until the first resize
-        self.on_frame_configure(None)
+        self.xscrollbar = tk.Scrollbar(self, orient='horizontal', command=self.canvas.xview)
+        self.canvas.configure(xscrollcommand=self.xscrollbar.set)
+        self.yscrollbar = tk.Scrollbar(self, orient='vertical', command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=self.yscrollbar.set)
 
-    def on_frame_configure(self, _unused):
-        """Reset the scroll region to encompass the inner frame"""
-        # whenever the size of the frame changes, alter the scroll region respectively.
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        # These functions prevent the canvas from scrolling unless the cursor is in it
+        self.canvas.bind('<Enter>', self._enter_frame)
+        self.canvas.bind('<Leave>', self._leave_frame)
 
-    def on_canvas_configure(self, event):
-        """Reset the canvas window to encompass inner frame when required"""
-        canvas_width = event.width
-        self.canvas.itemconfig(self.canvas_window, width=canvas_width)
+        # This method places the scrollbars onto the containing frame
+        self.set_direction(self.direction)
 
-    def on_mouse_wheel(self, event):
-        """Cross platform scroll wheel event"""
+        # Place the canvas onto the container and weigh relevant rows/cols for proper expansion
+        self.canvas.grid(row=0, column=0, sticky=tk.S + tk.E + tk.N + tk.W)
+        tk.Grid.rowconfigure(self, 0, weight=1)
+        tk.Grid.columnconfigure(self, 0, weight=1)
+        tk.Grid.rowconfigure(self, 1, weight=0)
+        tk.Grid.columnconfigure(self, 1, weight=0)
+
+    def _on_frame_change(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+
+    def _on_canvas_change(self, event):
+        pass
+
+    def _on_mouse_wheel(self, event):
+        """"Cross platform scroll wheel event"""
         if platform.system() == "Windows":
             self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         elif platform.system() == "Darwin":
@@ -78,21 +78,96 @@ class ScrollFrame(tk.Frame):
             elif event.num == 5:
                 self.canvas.yview_scroll(1, "units")
 
-    def on_enter(self, _unused):
-        """Bind wheel events when the cursor enters the control"""
-        if platform.system() == "Linux":
-            self.canvas.bind_all("<Button-4>", self.on_mouse_wheel)
-            self.canvas.bind_all("<Button-5>", self.on_mouse_wheel)
+    def _on_shift_mouse_wheel(self, event):
+        if platform.system() == "Windows":
+            self.canvas.xview_scroll(int(-1 * (event.delta / 120)), "units")
+        elif platform.system() == "Darwin":
+            self.canvas.xview_scroll(int(-1 * event.delta), "units")
         else:
-            self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)
+            if event.num == 4:
+                self.canvas.xview_scroll(-1, "units")
+            elif event.num == 5:
+                self.canvas.xview_scroll(1, "units")
 
-    def on_leave(self, _unused):
-        """Unbind wheel events when the cursor leaves the control"""
+    def _enter_frame(self, event):
         if platform.system() == "Linux":
-            self.canvas.unbind_all("<Button-4>")
-            self.canvas.unbind_all("<Button-5>")
+            if self.direction != 'horizontal':
+                self.canvas.bind_all("<Button-4>", self._on_mouse_wheel)
+                self.canvas.bind_all("<Button-5>", self._on_mouse_wheel)
+            if self.direction != 'vertical':
+                self.canvas.bind_all("<Shift-Button-4>", self._on_shift_mouse_wheel)
+                self.canvas.bind_all("<Shift-Button-5>", self._on_shift_mouse_wheel)
         else:
-            self.canvas.unbind_all("<MouseWheel>")
+            if self.direction != 'horizontal':
+                self.viewPort.bind_all("<MouseWheel>", self._on_mouse_wheel)
+            if self.direction != 'vertical':
+                self.viewPort.bind_all("<Shift-MouseWheel>", self._on_shift_mouse_wheel)
+
+    def _leave_frame(self, event):
+        if platform.system() == "Linux":
+            if self.direction != 'horizontal':
+                self.canvas.unbind_all("<Button-4>")
+                self.canvas.unbind_all("<Button-5>")
+            if self.direction != 'vertical':
+                self.canvas.unbind_all("<Shift-Button-4>")
+                self.canvas.unbind_all("<Shift-Button-5>")
+        else:
+            if self.direction != 'horizontal':
+                self.viewPort.unbind_all("<MouseWheel>")
+            if self.direction != 'vertical':
+                self.viewPort.unbind_all("<Shift-MouseWheel>")
+
+    def set_direction(self, direction):
+        if direction in ['both', 'horizontal', 'vertical']:
+            self.direction = direction
+            self.xscrollbar.grid_forget()
+            self.yscrollbar.grid_forget()
+            if self.direction != 'horizontal':
+                self.yscrollbar.grid(row=0, column=1, sticky=tk.S + tk.E + tk.N + tk.W)
+            if self.direction != 'vertical':
+                self.xscrollbar.grid(row=1, column=0, sticky=tk.S + tk.E + tk.N + tk.W)
+        else:
+            raise ValueError("Direction must be 'horizontal', 'vertical', or 'both'")
+
+    def config_sf(self, **options):
+        """Overwrites the config for the containing frame and sends options to the scrollable frame"""
+
+        # Some options will only apply to the canvas
+        if 'highlightbackground' in options:
+            self.canvas.configure(highlightbackground=options.get('highlightbackground'))
+            options.pop('highlightbackground')
+
+        if 'highlightcolor' in options:
+            self.canvas.configure(highlightcolor=options.get('highlightcolor'))
+            options.pop('highlightcolor')
+
+        if 'highlightthickness' in options:
+            self.canvas.configure(highlightthickness=options.get('highlightthickness'))
+            options.pop('highlightthickness')
+
+        # Some options will apply to both the frame and canvas
+        if 'bg' in options and 'background' in options:
+            raise KeyError("Can't use both bg and background options")
+        elif 'bg' in options:
+            self.canvas.configure(bg=options.get('bg'))
+        elif 'background' in options:
+            self.canvas.configure(bg=options.get('background'))
+
+        if 'bd' in options and 'borderwidth' in options:
+            raise KeyError("Can't use both bd and borderwidth options")
+        elif 'bd' in options:
+            self.canvas.configure(bd=options.get('bd'))
+            options.pop('bd')
+        elif 'borderwidth' in options:
+            self.canvas.configure(bd=options.get('borderwidth'))
+            options.pop('borderwidth')
+
+        self.canvas.configure(height=options.get('height'))
+        self.canvas.configure(width=options.get('width'))
+        self.canvas.configure(cursor=options.get('cursor'))
+
+        # Apply all non-popped options to frame
+        self.viewPort.configure(**options)
 
 
 # *********************** #
@@ -102,7 +177,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -179,9 +254,18 @@ class PageViewer(ScrollFrame):
         self.column = column
         self.frame_width = 0
         self.frame_height = 0
+        self.offset_vertical = 10
+        self.offset_horizontal = 10
         self.scale = scale
 
         super().__init__(parent, *args, **kwargs)
+
+    def change_canvas_size(self):
+        self.viewPort.update()
+        self.canvas.update()
+        self.canvas.configure(width=self.viewPort.winfo_width())
+        self.canvas.update()
+        self.canvas.itemconfig(self.canvas_window, width=self.canvas.winfo_width())
 
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
@@ -192,8 +276,7 @@ class PageViewer(ScrollFrame):
         self.clear()
 
         # get page viewer properties
-        self.frame_width = self.winfo_width()
-        self.frame_height = self.winfo_height()
+        self.get_properties()
 
         scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -211,7 +294,6 @@ class PageViewer(ScrollFrame):
 
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)
-
         return None
 
     def blit_page(self, page, index):
@@ -223,6 +305,7 @@ class PageViewer(ScrollFrame):
             padx=3,
         )
         labelImg.image = page
+        labelImg.id = index
 
         # place label in frame
         if self.column == 1:
@@ -252,9 +335,7 @@ class PageViewer(ScrollFrame):
 
     def update_pages(self, document: fitz.Document):
         """Recreate images and blit it on existing labels"""
-        # get page viewer properties
-        self.frame_width = self.winfo_width()
-        self.frame_height = self.winfo_height()
+        self.get_properties()
 
         scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -281,13 +362,24 @@ class PageViewer(ScrollFrame):
 
         # rescale image to fit in the frame
         if self.column == 1:
-            scale = (self.frame_height / img.size[1]) * scaling
+            scale = ((self.frame_height - self.offset_horizontal) / img.size[1]) * scaling
         else:
-            scale = (((self.frame_width - 16) / self.column) / img.size[0]) * scaling
-
+            scale = (((self.frame_width - self.offset_horizontal) / self.column) / img.size[0]) * scaling
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 
         return scaleImg
+
+    def get_properties(self):
+        # get page viewer properties
+        self.frame_width = self.canvas.winfo_width()
+        self.frame_height = self.canvas.winfo_height()
+
+        # get width and height of the scrollbar to later calculate the offset
+        # also subtract 10 for padding between pages
+        if self.yscrollbar.winfo_ismapped():  # test if a vertical scrollbar is packed
+            self.offset_horizontal = self.yscrollbar.winfo_width() + 10
+        if self.xscrollbar.winfo_ismapped():  # test if a horizontal scrollbar is packed
+            self.offset_vertical = self.xscrollbar.winfo_height() + 10
 
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""
