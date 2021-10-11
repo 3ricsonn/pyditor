@@ -60,7 +60,7 @@ class ScrollFrame(tk.Frame):
         tk.Grid.rowconfigure(self, 1, weight=0)
         tk.Grid.columnconfigure(self, 1, weight=0)
 
-    def _on_frame_change(self, event):
+    def _on_frame_change(self, _event):
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
     def _on_canvas_change(self, event):
@@ -89,7 +89,7 @@ class ScrollFrame(tk.Frame):
             elif event.num == 5:
                 self.canvas.xview_scroll(1, "units")
 
-    def _enter_frame(self, event):
+    def _enter_frame(self, _event):
         if platform.system() == "Linux":
             if self.direction != 'horizontal':
                 self.canvas.bind_all("<Button-4>", self._on_mouse_wheel)
@@ -103,7 +103,7 @@ class ScrollFrame(tk.Frame):
             if self.direction != 'vertical':
                 self.viewPort.bind_all("<Shift-MouseWheel>", self._on_shift_mouse_wheel)
 
-    def _leave_frame(self, event):
+    def _leave_frame(self, _event):
         if platform.system() == "Linux":
             if self.direction != 'horizontal':
                 self.canvas.unbind_all("<Button-4>")
@@ -249,23 +249,20 @@ class CollapsibleFrame(tk.Frame):
 class PageViewer(ScrollFrame):
     """Scrollable Frame to display pages of a pdf document"""
 
-    def __init__(self, parent, column=1, scale="100%", *args, **kwargs):
+    def __init__(self, parent, column=1, *args, **kwargs):
         self.pages = []
         self.column = column
+        self._scaling = 1
         self.frame_width = 0
         self.frame_height = 0
         self.offset_vertical = 10
         self.offset_horizontal = 10
-        self.scale = scale
 
         super().__init__(parent, *args, **kwargs)
 
-    def change_canvas_size(self):
-        self.viewPort.update()
-        self.canvas.update()
-        self.canvas.configure(width=self.viewPort.winfo_width())
-        self.canvas.update()
-        self.canvas.itemconfig(self.canvas_window, width=self.canvas.winfo_width())
+    @property
+    def scaling(self):
+        return self._scaling
 
     def load_pages(self, document: fitz.Document) -> None:
         """Displays all pages of the document vertically"""
@@ -278,12 +275,11 @@ class PageViewer(ScrollFrame):
         # get page viewer properties
         self.get_properties()
 
-        scale = self.get_scaling()
         with concurrent.futures.ThreadPoolExecutor() as executor:
             imgs = executor.map(
                 self.convert_page,
                 document,
-                itertools.repeat(scale, times=len(document)),
+                itertools.repeat(self.scaling, times=len(document)),
             )
 
         for index, img in enumerate(imgs):
@@ -295,6 +291,49 @@ class PageViewer(ScrollFrame):
             # append label to pages to later display whether its selected
             self.pages.append(labelImg)
         return None
+
+    # def update_vision(self):
+    #     current = int(
+    #        self.canvas.yview()[1] * (len(self.pages) // self.column + 1) * self.column
+    #     )
+    #     if self.current != current:
+    #         self.update_pages(self.document)
+    #         self.current = current
+
+    def update_pages(self, document: fitz.Document):
+        """Recreate images and blit it on existing labels"""
+        self.get_properties()
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            imgs = executor.map(
+                self.convert_page,
+                document,
+                itertools.repeat(self.scaling, times=len(document)),
+            )
+
+        for index, img in enumerate(imgs):  # , start=self.current):
+            # convert to a displayable tk-image
+            tkImg = ImageTk.PhotoImage(img)
+
+            self.pages[index].config(image=tkImg)
+            self.pages[index].image = tkImg
+
+    def convert_page(self, page, scaling=1):
+        """Covert a given page object to a displayable Image and resize it"""
+        pix = page.get_pixmap()
+
+        # set the mode depending on alpha
+        mode = "RGBA" if pix.alpha else "RGB"
+        img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
+
+        # rescale image to fit in the frame
+        if self.column == 1:
+            scale = ((self.frame_height - self.offset_horizontal) / img.size[1]) * scaling
+        else:
+            scale = (((self.frame_width - self.offset_horizontal) / self.column) / img.size[0]) * scaling
+        scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
+
+        return scaleImg
 
     def blit_page(self, page, index):
         """Blit given Image on label and returns it"""
@@ -320,55 +359,6 @@ class PageViewer(ScrollFrame):
 
         return labelImg
 
-    def get_scaling(self):
-        """Gets the selected scaling and calculate the scaling factor"""
-        scale = self.scale.get() if type(self.scale) is tk.StringVar else self.scale
-        return int(scale[:-1]) / 100
-
-    # def update_vision(self):
-    #     current = int(
-    #        self.canvas.yview()[1] * (len(self.pages) // self.column + 1) * self.column
-    #     )
-    #     if self.current != current:
-    #         self.update_pages(self.document)
-    #         self.current = current
-
-    def update_pages(self, document: fitz.Document):
-        """Recreate images and blit it on existing labels"""
-        self.get_properties()
-
-        scale = self.get_scaling()
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            imgs = executor.map(
-                self.convert_page,
-                document,
-                itertools.repeat(scale, times=len(document)),
-            )
-
-        for index, img in enumerate(imgs):  # , start=self.current):
-            # convert to a displayable tk-image
-            tkImg = ImageTk.PhotoImage(img)
-
-            self.pages[index].config(image=tkImg)
-            self.pages[index].image = tkImg
-
-    def convert_page(self, page, scaling: int):
-        """Covert a given page object to a displayable Image and resize it"""
-        pix = page.get_pixmap()
-
-        # set the mode depending on alpha
-        mode = "RGBA" if pix.alpha else "RGB"
-        img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
-
-        # rescale image to fit in the frame
-        if self.column == 1:
-            scale = ((self.frame_height - self.offset_horizontal) / img.size[1]) * scaling
-        else:
-            scale = (((self.frame_width - self.offset_horizontal) / self.column) / img.size[0]) * scaling
-        scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
-
-        return scaleImg
-
     def get_properties(self):
         # get page viewer properties
         self.frame_width = self.canvas.winfo_width()
@@ -380,13 +370,6 @@ class PageViewer(ScrollFrame):
             self.offset_horizontal = self.yscrollbar.winfo_width() + 10
         if self.xscrollbar.winfo_ismapped():  # test if a horizontal scrollbar is packed
             self.offset_vertical = self.xscrollbar.winfo_height() + 10
-
-    def jump_to_page(self, page: int) -> None:
-        """Jumps with scrollbar to given page"""
-        overlap = 1 if self.column >= 2 else 0
-        self.canvas.yview_moveto(
-            str((page // self.column) / (len(self.pages) // self.column + overlap))
-        )
 
     def clear(self) -> None:
         """Removes all widget within the frame"""

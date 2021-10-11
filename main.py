@@ -7,8 +7,8 @@ from tkinter.filedialog import askopenfilename
 
 import fitz  # PyMuPDF
 
-from components import SingleSelectablePV
-from widgets import CollapsibleFrame, PageViewer
+from components import SidePageViewer, PagesEditor
+from widgets import CollapsibleFrame
 
 # Owned
 __author__ = "3ricsonn"
@@ -60,11 +60,11 @@ class PyditorApplication(tk.Frame):
         # == components definitions ==
         # -- page viewer --
         self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel)
-        self.pageViewer = SingleSelectablePV(parent=self.pageViewerFrame.frame)
+        self.pageViewer = SidePageViewer(parent=self.pageViewerFrame.frame)
 
         # -- document editor --
         self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
-        self.pageEditor = PageViewer(parent=self.editorFrame, column=2, scale=self.scaleVar, direction="both")
+        self.pageEditor = PagesEditor(parent=self.editorFrame, column=2, scale=self.scaleVar, direction="both")
 
         # frame to store setting widgets
         self.editorSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")

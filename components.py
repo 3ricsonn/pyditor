@@ -1,21 +1,24 @@
+import re
+import itertools
+import concurrent.futures
 import tkinter as tk
-from PIL import Image
+from PIL import Image, ImageTk
 
 import fitz  # PyMuPDF
 
 from widgets import PageViewer
 
-__all__ = ["SingleSelectablePV"]
+__all__ = ["SidePageViewer", "PagesEditor"]
 
 
-class SingleSelectablePV(PageViewer):
+class SidePageViewer(PageViewer):
     """Scrollable Frame to display and select a single page of a pdf document"""
 
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
         # related page viewer to display selected page
-        self._related: PageViewer = None
+        self._related: PagesEditor = None
 
     def add_page_viewer_relation(self, widget: PageViewer):
         """Add page viewer to be able to jump to a selected page"""
@@ -32,7 +35,7 @@ class SingleSelectablePV(PageViewer):
             # bind an event whenever a page is clicked to select it
             label.bind("<Button-1>", func=self.select_page)
 
-    def convert_page(self, page, scaling: int):
+    def convert_page(self, page, scaling):
         """Covert a given page object to a displayable Image and resize it"""
         pix = page.get_pixmap()
 
@@ -61,3 +64,30 @@ class SingleSelectablePV(PageViewer):
         # jump with added page viewer to selected page
         if self._related:
             self._related.jump_to_page(event.widget.id - 1)
+
+
+class PagesEditor(PageViewer):
+    def __init__(self, parent, *args, **kwargs):
+        if "scale" in kwargs:
+            if type(kwargs["scale"]) == tk.StringVar or re.match("^[0-9]{1,3}%$", kwargs["scale"]):
+                self.scale = kwargs["scale"]
+            else:
+                ValueError(
+                    "Argument scale must be ether a Stringvar or a string indicating the percentage to scale the image"
+                )
+            kwargs.pop("scale")
+
+        super().__init__(parent, *args, **kwargs)
+
+    @property
+    def scaling(self):
+        """Gets the selected scaling and calculate the scaling factor"""
+        scale = self.scale.get() if type(self.scale) is tk.StringVar else self.scale
+        return int(scale[:-1]) / 100
+
+    def jump_to_page(self, page: int) -> None:  # Bug: jumps not everytime to correct page
+        """Jumps with scrollbar to given page"""
+        overlap = 1 if self.column >= 2 else 0
+        self.canvas.yview_moveto(
+            str((page // self.column) / (len(self.pages) // self.column + overlap))
+        )
