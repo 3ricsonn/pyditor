@@ -67,9 +67,7 @@ class SidePageViewer(PageViewer):
 class PagesEditor(PageViewer):
     def __init__(self, parent, *args, **kwargs):
         if "scale" in kwargs:
-            if type(kwargs["scale"]) == tk.StringVar or re.match(
-                "^[0-9]{1,3}%$", kwargs["scale"]
-            ):
+            if type(kwargs["scale"]) is tk.StringVar or re.match("^[0-9]{1,3}%$", kwargs["scale"]):
                 self.scale = kwargs["scale"]
             else:
                 ValueError(
