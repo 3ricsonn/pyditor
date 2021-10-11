@@ -1,8 +1,6 @@
 import re
-import itertools
-import concurrent.futures
 import tkinter as tk
-from PIL import Image, ImageTk
+from PIL import Image
 
 import fitz  # PyMuPDF
 
@@ -85,7 +83,7 @@ class PagesEditor(PageViewer):
         scale = self.scale.get() if type(self.scale) is tk.StringVar else self.scale
         return int(scale[:-1]) / 100
 
-    def jump_to_page(self, page: int) -> None:  # Bug: jumps not everytime to correct page
+    def jump_to_page(self, page: int) -> None:  # TODO: jumps not everytime to correct page
         """Jumps with scrollbar to given page"""
         overlap = 1 if self.column >= 2 else 0
         self.canvas.yview_moveto(

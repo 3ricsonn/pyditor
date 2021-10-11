@@ -318,7 +318,7 @@ class PageViewer(ScrollFrame):
             self.pages[index].config(image=tkImg)
             self.pages[index].image = tkImg
 
-    def convert_page(self, page, scaling=1):
+    def convert_page(self, page, scaling):
         """Covert a given page object to a displayable Image and resize it"""
         pix = page.get_pixmap()
 

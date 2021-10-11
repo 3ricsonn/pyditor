@@ -1,5 +1,3 @@
-import getopt
-import os
 import sys
 import tkinter as tk
 from tkinter import ttk
@@ -9,19 +7,6 @@ import fitz  # PyMuPDF
 
 from components import SidePageViewer, PagesEditor
 from widgets import CollapsibleFrame
-
-# Owned
-__author__ = "3ricsonn"
-__copyright__ = "Copyright 2021, 3ricsonn"
-__credits__ = ["3ricsonn"]
-__license__ = "GPLv3"
-__version__ = "0.0.2"
-__maintainer__ = "3ricsonn"
-__email__ = "3ricsonn@protonmail.com"
-__status__ = "DEV"
-
-# CONSTANTS
-DIRNAME = os.path.dirname(__file__)
 
 
 class PyditorApplication(tk.Frame):
@@ -60,7 +45,7 @@ class PyditorApplication(tk.Frame):
         # == components definitions ==
         # -- page viewer --
         self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel)
-        self.pageViewer = SidePageViewer(parent=self.pageViewerFrame.frame)
+        self.pageViewer = SidePageViewer(parent=self.pageViewerFrame.frame, direction="vertical")
 
         # -- document editor --
         self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
@@ -204,57 +189,3 @@ class PyditorApplication(tk.Frame):
         """Function to clean up and end the application"""
         self.PDFDocument.close()
         sys.exit(1)
-
-
-def print_sash_pos():
-    """Print position of sashes for debugging"""
-    print(f"1.: {app.bodyPanel.sash_coord(0)}")
-    print(f"2.: {app.bodyPanel.sash_coord(1)}")
-
-
-if __name__ == "__main__":
-    # create the window and do basic configuration
-    rootWindow = tk.Tk()
-    rootWindow.title("Pyditor - edit PDFs")
-    rootWindow.geometry("1350x1300")
-
-    # creating and packing the Main Application
-    app = PyditorApplication(rootWindow)
-    app.pack(fill="both", expand=True)
-    app.load_components()
-
-    # handling command line commands
-    opts, _ = getopt.getopt(sys.argv[1:], shortopts="f:", longopts=["version"])
-    for opt, arg in opts:
-        # open file via commandline
-        if opt == "-f":
-            app.set_document(os.path.join(DIRNAME, arg))
-        elif opt == "--version":
-            print(f"Current version: {__version__}, status: {__status__}")
-            app.exit()
-
-    # == creating menus ==
-    # the main menu
-    mainMenu = tk.Menu(master=rootWindow)
-    rootWindow.config(menu=mainMenu)
-
-    # creating menu taps
-    # file-menu
-    fileMenu = tk.Menu(master=mainMenu)
-    mainMenu.add_cascade(label="File", menu=fileMenu)
-    fileMenu.add_command(label="Open", command=app.open_file)
-    fileMenu.add_command(label="Save", command=app.save_file)
-    fileMenu.add_command(label="Save as...", command=app.save_file_name)
-    fileMenu.add_separator()
-    fileMenu.add_command(label="Exit", command=rootWindow.quit)
-
-    # debugging
-    debug = tk.Menu(master=rootWindow)
-    mainMenu.add_cascade(label="debug", menu=debug)
-    debug.add_command(label="sash", command=print_sash_pos)
-
-    # run the windows mainloop
-    try:
-        rootWindow.mainloop()
-    finally:
-        app.exit()
