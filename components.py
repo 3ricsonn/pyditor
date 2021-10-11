@@ -1,8 +1,8 @@
 import re
 import tkinter as tk
-from PIL import Image
 
 import fitz  # PyMuPDF
+from PIL import Image
 
 from widgets import PageViewer
 

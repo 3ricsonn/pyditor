@@ -1,7 +1,8 @@
-import tkinter as tk
+#!/bin/python3
 import getopt
-import sys
 import os
+import sys
+import tkinter as tk
 
 from app import PyditorApplication
 
@@ -27,7 +28,16 @@ def print_sash_pos():
 
 
 # handling command line commands
-opts, _ = getopt.getopt(sys.argv[1:], shortopts="f:", longopts=["version"])
+try:
+    opts, _ = getopt.getopt(sys.argv[1:], shortopts="f:", longopts=["version"])
+except getopt.GetoptError:
+    print("""
+    Invalid argument(s)
+    For usage information run: pyditor -h | --help
+    For version information run: pyditor --version
+    """)
+    sys.exit()
+
 for opt, arg in opts:
     if opt == "-h" or opt == "--help":
         print("""
@@ -42,7 +52,7 @@ for opt, arg in opts:
             """)
         sys.exit()
 
-    if opt == "-f":
+    elif opt == "-f":
         file_path = os.path.join(DIRNAME, arg.strip())
     elif opt == "--version":
         print(f"Current version: {__version__}, status: {__status__}")

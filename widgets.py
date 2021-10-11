@@ -1,7 +1,8 @@
-import platform
-import tkinter as tk
 import concurrent.futures
 import itertools
+import platform
+import tkinter as tk
+
 import fitz  # PyMuPDF
 from PIL import Image, ImageTk
 
@@ -63,7 +64,7 @@ class ScrollFrame(tk.Frame):
     def _on_frame_change(self, _event):
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
-    def _on_canvas_change(self, event):
+    def _on_canvas_change(self, _event):
         pass
 
     def _on_mouse_wheel(self, event):
@@ -239,7 +240,7 @@ class CollapsibleFrame(tk.Frame):
     def _show(self) -> None:
         """Reshow content"""
         self._func_show()
-        self.frame.pack(fill="both", side=self.align[0], expand=True)
+        self.frame.pack(fill="both", side=self.align[0])
         self._hideButton.config(text=self.char[0], command=self._hide)
 
 

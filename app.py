@@ -157,6 +157,7 @@ class PyditorApplication(tk.Frame):
         """Function to change the number of columns the document is displayed"""
         self.scaleVar.set("100%")
         self.pageEditor.column = int(selection[0])
+        self.pageEditor.canvas.yview_moveto(0.0)
         self.pageEditor.load_pages(self.PDFDocument)
 
     def open_file(self):
