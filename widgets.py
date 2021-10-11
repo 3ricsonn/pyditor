@@ -40,7 +40,9 @@ class ScrollFrame(tk.Frame):
 
         self.viewPort.bind("<Configure>", self._on_frame_change)
         self.canvas.bind("<Configure>", self._on_canvas_change)
-        self.canvas_window = self.canvas.create_window((0, 0), window=self.viewPort, anchor="nw")
+        self.canvas_window = self.canvas.create_window(
+            (0, 0), window=self.viewPort, anchor="nw"
+        )
 
         self.xscrollbar = tk.Scrollbar(self, orient='horizontal', command=self.canvas.xview)
         self.canvas.configure(xscrollcommand=self.xscrollbar.set)
@@ -94,6 +96,7 @@ class ScrollFrame(tk.Frame):
                 self.canvas.xview_scroll(1, "units")
 
     def _enter_frame(self, _event):
+        """Bind all scrolling events when leaving frame"""
         if platform.system() == "Linux":
             if self.direction != "horizontal":
                 self.canvas.bind_all("<Button-4>", self._on_mouse_wheel)
@@ -136,7 +139,7 @@ class ScrollFrame(tk.Frame):
             raise ValueError("Direction must be 'horizontal', 'vertical', or 'both'")
 
     def config_sf(self, **options):
-        """Overwrites the config for containing frame and sends options to the scrollable frame"""
+        """Overwrites the config for containing frame and sends options to the scrollable frame"""  # skipcq
 
         # Some options will only apply to the canvas
         if "highlightbackground" in options:
@@ -185,7 +188,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -339,8 +342,8 @@ class PageViewer(ScrollFrame):
             scale = (self.frame_height - self.offset_horizontal) / img.size[1]
         else:
             scale = (
-                (self.frame_width - self.offset_horizontal) / self.column
-            ) / img.size[0]
+                            (self.frame_width - self.offset_horizontal) / self.column
+                    ) / img.size[0]
 
         scale *= scaling
 
