@@ -63,7 +63,7 @@ class ScrollFrame(tk.Frame):
 
     def _on_frame_change(self, _event):
         """Function called when frame size changed"""
-        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def _on_canvas_change(self, _event):
         """Function called when canvas size changed"""
@@ -94,84 +94,85 @@ class ScrollFrame(tk.Frame):
                 self.canvas.xview_scroll(1, "units")
 
     def _enter_frame(self, _event):
-        """Bind all scrolling events when entering frame"""
         if platform.system() == "Linux":
-            if self.direction != 'horizontal':
+            if self.direction != "horizontal":
                 self.canvas.bind_all("<Button-4>", self._on_mouse_wheel)
                 self.canvas.bind_all("<Button-5>", self._on_mouse_wheel)
-            if self.direction != 'vertical':
+            if self.direction != "vertical":
                 self.canvas.bind_all("<Shift-Button-4>", self._on_shift_mouse_wheel)
                 self.canvas.bind_all("<Shift-Button-5>", self._on_shift_mouse_wheel)
         else:
-            if self.direction != 'horizontal':
+            if self.direction != "horizontal":
                 self.viewPort.bind_all("<MouseWheel>", self._on_mouse_wheel)
-            if self.direction != 'vertical':
+            if self.direction != "vertical":
                 self.viewPort.bind_all("<Shift-MouseWheel>", self._on_shift_mouse_wheel)
 
     def _leave_frame(self, _event):
         """Unbind all scrolling events when leaving frame"""
         if platform.system() == "Linux":
-            if self.direction != 'horizontal':
+            if self.direction != "horizontal":
                 self.canvas.unbind_all("<Button-4>")
                 self.canvas.unbind_all("<Button-5>")
-            if self.direction != 'vertical':
+            if self.direction != "vertical":
                 self.canvas.unbind_all("<Shift-Button-4>")
                 self.canvas.unbind_all("<Shift-Button-5>")
         else:
-            if self.direction != 'horizontal':
+            if self.direction != "horizontal":
                 self.viewPort.unbind_all("<MouseWheel>")
-            if self.direction != 'vertical':
+            if self.direction != "vertical":
                 self.viewPort.unbind_all("<Shift-MouseWheel>")
 
     def set_direction(self, direction):
         """Set scrollbars"""
-        if direction in ['both', 'horizontal', 'vertical']:
+        if direction in ["both", "horizontal", "vertical"]:
             self.direction = direction
             self.xscrollbar.grid_forget()
             self.yscrollbar.grid_forget()
-            if self.direction != 'horizontal':
+            if self.direction != "horizontal":
                 self.yscrollbar.grid(row=0, column=1, sticky=tk.S + tk.E + tk.N + tk.W)
-            if self.direction != 'vertical':
+            if self.direction != "vertical":
                 self.xscrollbar.grid(row=1, column=0, sticky=tk.S + tk.E + tk.N + tk.W)
         else:
             raise ValueError("Direction must be 'horizontal', 'vertical', or 'both'")
 
     def config_sf(self, **options):
-        """Overwrites the config for containing frame and sends options to the scrollable frame"""  # skipcq
+        """Overwrites the config for containing frame and sends options to the scrollable frame"""
 
         # Some options will only apply to the canvas
-        if 'highlightbackground' in options:
-            self.canvas.configure(highlightbackground=options.get('highlightbackground'))
-            options.pop('highlightbackground')
+        if "highlightbackground" in options:
+            self.canvas.configure(
+                highlightbackground=options.get("highlightbackground")
+            )
+            options.pop("highlightbackground")
 
-        if 'highlightcolor' in options:
-            self.canvas.configure(highlightcolor=options.get('highlightcolor'))
-            options.pop('highlightcolor')
+        if "highlightcolor" in options:
+            self.canvas.configure(highlightcolor=options.get("highlightcolor"))
+            options.pop("highlightcolor")
 
-        if 'highlightthickness' in options:
-            self.canvas.configure(highlightthickness=options.get('highlightthickness'))
-            options.pop('highlightthickness')
+        if "highlightthickness" in options:
+            self.canvas.configure(highlightthickness=options.get("highlightthickness"))
+            options.pop("highlightthickness")
 
         # Some options will apply to both the frame and canvas
-        if 'bg' in options and 'background' in options:
+        if "bg" in options and "background" in options:
             raise KeyError("Can't use both bg and background options")
-        elif 'bg' in options:
-            self.canvas.configure(bg=options.get('bg'))
-        elif 'background' in options:
-            self.canvas.configure(bg=options.get('background'))
+        elif "bg" in options:
+            self.canvas.configure(bg=options.get("bg"))
+        elif "background" in options:
+            self.canvas.configure(bg=options.get("background"))
 
-        if 'bd' in options and 'borderwidth' in options:
+        if "bd" in options and "borderwidth" in options:
             raise KeyError("Can't use both bd and borderwidth options")
-        elif 'bd' in options:
-            self.canvas.configure(bd=options.get('bd'))
-            options.pop('bd')
-        elif 'borderwidth' in options:
-            self.canvas.configure(bd=options.get('borderwidth'))
-            options.pop('borderwidth')
+        elif "bd" in options:
+            self.canvas.configure(bd=options.get("bd"))
+            options.pop("bd")
+        elif "borderwidth" in options:
+            self.canvas.configure(bd=options.get("borderwidth"))
+            options.pop("borderwidth")
 
-        self.canvas.configure(height=options.get('height'))
-        self.canvas.configure(width=options.get('width'))
-        self.canvas.configure(cursor=options.get('cursor'))
+        self.canvas.configure(height=options.get("height"))
+        self.canvas.configure(width=options.get("width"))
+        self.canvas.configure(cursor=options.get("cursor"))
 
         # Apply all non-popped options to frame
         self.viewPort.configure(**options)
@@ -184,7 +185,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -335,9 +336,12 @@ class PageViewer(ScrollFrame):
 
         # rescale image to fit in the frame
         if self.column == 1:
-            scale = ((self.frame_height - self.offset_horizontal) / img.size[1])
+            scale = (self.frame_height - self.offset_horizontal) / img.size[1]
         else:
-            scale = (((self.frame_width - self.offset_horizontal) / self.column) / img.size[0])
+            scale = (
+                (self.frame_width - self.offset_horizontal) / self.column
+            ) / img.size[0]
+
         scale *= scaling
 
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
