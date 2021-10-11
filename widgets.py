@@ -74,6 +74,9 @@ class ScrollFrame(tk.Frame):
         """Function called when frame size changed"""
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+    def _on_canvas_change(self, _event):
+        """Function called when canvas size changed"""
+
     def _on_mouse_wheel(self, event):
         """Cross platform scroll wheel event"""
         if platform.system() == "Windows":
