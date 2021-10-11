@@ -191,7 +191,7 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-            self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
 
@@ -345,8 +345,8 @@ class PageViewer(ScrollFrame):
             scale = (self.frame_height - self.offset_horizontal) / img.size[1]
         else:
             scale = (
-                            (self.frame_width - self.offset_horizontal) / self.column
-                    ) / img.size[0]
+                (self.frame_width - self.offset_horizontal) / self.column
+            ) / img.size[0]
 
         scale *= scaling
 
