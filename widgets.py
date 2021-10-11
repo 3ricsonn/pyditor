@@ -13,7 +13,7 @@ __all__ = ["ScrollFrame", "CollapsibleFrame", "PageViewer"]
 #  Scrollable Frame Class  #
 # ************************ #
 # (inspired by:
-#  - https://github.com/RomneyDa/tkinter-scrollable-frame/blob/master/ScrollableFrame/ScrollableFrame.py
+#  - https://github.com/RomneyDa/tkinter-scrollable-frame/blob/master/ScrollableFrame/ScrollableFrame.py   # skipcq
 #  - https://gist.github.com/mp035/9f2027c3ef9172264532fcd6262f3b01
 # )
 class ScrollFrame(tk.Frame):
@@ -137,7 +137,7 @@ class ScrollFrame(tk.Frame):
             raise ValueError("Direction must be 'horizontal', 'vertical', or 'both'")
 
     def config_sf(self, **options):
-        """Overwrites the config for containing frame and sends options to the scrollable frame"""
+        """Overwrites the config for containing frame and sends options to the scrollable frame"""  # skipcq
 
         # Some options will only apply to the canvas
         if 'highlightbackground' in options:
