@@ -45,11 +45,15 @@ class PyditorApplication(tk.Frame):
         # == components definitions ==
         # -- page viewer --
         self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel)
-        self.pageViewer = SidePageViewer(parent=self.pageViewerFrame.frame, direction="vertical")
+        self.pageViewer = SidePageViewer(
+            parent=self.pageViewerFrame.frame, direction="vertical"
+        )
 
         # -- document editor --
         self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
-        self.pageEditor = PagesEditor(parent=self.editorFrame, column=2, scale=self.scaleVar, direction="both")
+        self.pageEditor = PagesEditor(
+            parent=self.editorFrame, column=2, scale=self.scaleVar, direction="both"
+        )
 
         # frame to store setting widgets
         self.editorSettingsFrame = tk.Frame(master=self.editorFrame, bg="blue")
