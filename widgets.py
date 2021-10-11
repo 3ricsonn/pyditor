@@ -162,14 +162,14 @@ class ScrollFrame(tk.Frame):
         # Some options will apply to both the frame and canvas
         if "bg" in options and "background" in options:
             raise KeyError("Can't use both bg and background options")
-        elif "bg" in options:
+        if "bg" in options:
             self.canvas.configure(bg=options.get("bg"))
         elif "background" in options:
             self.canvas.configure(bg=options.get("background"))
 
         if "bd" in options and "borderwidth" in options:
             raise KeyError("Can't use both bd and borderwidth options")
-        elif "bd" in options:
+        if "bd" in options:
             self.canvas.configure(bd=options.get("bd"))
             options.pop("bd")
         elif "borderwidth" in options:
