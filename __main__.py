@@ -1,4 +1,22 @@
 #!/bin/python3
+# -*- coding: utf-8 -*-
+#
+# Pyditor – An editor to inspected and rearrange pages of pdf-files
+# Copyright (C) 2021  3ricsonn
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import getopt
 import os
 import sys
@@ -29,7 +47,7 @@ def print_sash_pos():
 
 # handling command line commands
 try:
-    opts, _ = getopt.getopt(sys.argv[1:], shortopts="f:", longopts=["version"])
+    opts, _ = getopt.getopt(sys.argv[1:], shortopts="f:", longopts=["version", "copyright"])
 except getopt.GetoptError:
     print(
         """
@@ -60,6 +78,14 @@ for opt, arg in opts:
         file_path = os.path.join(DIRNAME, arg.strip())
     elif opt == "--version":
         print(f"Current version: {__version__}, status: {__status__}")
+        sys.exit()
+    elif opt == "--copyright":
+        print("""
+        pyditor  Copyright (C) 2021  3ricsonn
+        This program comes with ABSOLUTELY NO WARRANTY.
+        This is free software, and you are welcome to redistribute it
+        under certain conditions; for details please refer to LICENSE.
+        """)
         sys.exit()
 
 # create the window and do basic configuration
