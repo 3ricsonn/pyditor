@@ -1,0 +1,15 @@
+# genarate a requirements for the project
+name: Auto requirements.txt
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Self test
+        id: selftest
+
+        uses: ryan-rozario/pipreqs-action-cpy@master
