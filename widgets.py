@@ -43,7 +43,6 @@ class ScrollFrame(tk.Frame):
         self.config_sf(**kwargs)
 
         self.viewPort.bind("<Configure>", self._on_frame_change)
-        self.canvas.bind("<Configure>", self._on_canvas_change)
         self.canvas_window = self.canvas.create_window(
             (0, 0), window=self.viewPort, anchor="nw"
         )
