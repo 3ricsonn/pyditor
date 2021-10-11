@@ -47,7 +47,9 @@ def print_sash_pos():
 
 # handling command line commands
 try:
-    opts, _ = getopt.getopt(sys.argv[1:], shortopts="f:", longopts=["version", "copyright"])
+    opts, _ = getopt.getopt(
+        sys.argv[1:], shortopts="f:", longopts=["version", "copyright"]
+    )
 except getopt.GetoptError:
     print(
         """
@@ -80,12 +82,14 @@ for opt, arg in opts:
         print(f"Current version: {__version__}, status: {__status__}")
         sys.exit()
     elif opt == "--copyright":
-        print("""
+        print(
+            """
         pyditor  Copyright (C) 2021  3ricsonn
         This program comes with ABSOLUTELY NO WARRANTY.
         This is free software, and you are welcome to redistribute it
         under certain conditions; for details please refer to LICENSE.
-        """)
+        """
+        )
         sys.exit()
 
 # create the window and do basic configuration
