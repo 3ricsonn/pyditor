@@ -18,7 +18,7 @@ class SidePageViewer(PageViewer):
         # related page viewer to display selected page
         self._related: PagesEditor = None
 
-    def add_page_viewer_relation(self, widget: PageViewer):
+    def add_page_viewer_relation(self, widget):
         """Add page viewer to be able to jump to a selected page"""
         self._related = widget
 
