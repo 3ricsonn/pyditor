@@ -29,7 +29,7 @@ __author__ = "3ricsonn"
 __copyright__ = "Copyright 2021, 3ricsonn"
 __credits__ = ["3ricsonn"]
 __license__ = "GPLv3"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __maintainer__ = "3ricsonn"
 __email__ = "3ricsonn@protonmail.com"
 __status__ = "DEV"
@@ -70,6 +70,7 @@ for opt, arg in opts:
                 General Options
                     -h, --help          Shows this help text and exit
                     --version           Print program version and exit
+                    --copyright         Print copyright information
                 File editing
                     -f                  Start the editor with the given document
             """
