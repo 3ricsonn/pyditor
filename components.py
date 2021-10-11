@@ -67,7 +67,9 @@ class SidePageViewer(PageViewer):
 class PagesEditor(PageViewer):
     def __init__(self, parent, *args, **kwargs):
         if "scale" in kwargs:
-            if type(kwargs["scale"]) == tk.StringVar or re.match("^[0-9]{1,3}%$", kwargs["scale"]):
+            if type(kwargs["scale"]) is tk.StringVar or re.match(
+                "^[0-9]{1,3}%$", kwargs["scale"]
+            ):
                 self.scale = kwargs["scale"]
             else:
                 ValueError(
@@ -83,7 +85,9 @@ class PagesEditor(PageViewer):
         scale = self.scale.get() if type(self.scale) is tk.StringVar else self.scale
         return int(scale[:-1]) / 100
 
-    def jump_to_page(self, page: int) -> None:  # TODO: jumps not everytime to correct page
+    def jump_to_page(
+        self, page: int
+    ) -> None:  # TODO: jumps not everytime to correct page
         """Jumps with scrollbar to given page"""
         overlap = 1 if self.column >= 2 else 0
         self.canvas.yview_moveto(
