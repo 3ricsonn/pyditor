@@ -62,13 +62,15 @@ class ScrollFrame(tk.Frame):
         tk.Grid.columnconfigure(self, 1, weight=0)
 
     def _on_frame_change(self, _event):
+        """Function called when frame size changed"""
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
     def _on_canvas_change(self, _event):
+        """Function called when canvas size changed"""
         pass
 
     def _on_mouse_wheel(self, event):
-        """"Cross platform scroll wheel event"""
+        """Cross platform scroll wheel event"""
         if platform.system() == "Windows":
             self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         elif platform.system() == "Darwin":
@@ -80,6 +82,7 @@ class ScrollFrame(tk.Frame):
                 self.canvas.yview_scroll(1, "units")
 
     def _on_shift_mouse_wheel(self, event):
+        """Function to scroll horizontally while holding shift"""
         if platform.system() == "Windows":
             self.canvas.xview_scroll(int(-1 * (event.delta / 120)), "units")
         elif platform.system() == "Darwin":
@@ -91,6 +94,7 @@ class ScrollFrame(tk.Frame):
                 self.canvas.xview_scroll(1, "units")
 
     def _enter_frame(self, _event):
+        """Bind all scrolling events when entering frame"""
         if platform.system() == "Linux":
             if self.direction != 'horizontal':
                 self.canvas.bind_all("<Button-4>", self._on_mouse_wheel)
@@ -105,6 +109,7 @@ class ScrollFrame(tk.Frame):
                 self.viewPort.bind_all("<Shift-MouseWheel>", self._on_shift_mouse_wheel)
 
     def _leave_frame(self, _event):
+        """Unbind all scrolling events when leaving frame"""
         if platform.system() == "Linux":
             if self.direction != 'horizontal':
                 self.canvas.unbind_all("<Button-4>")
@@ -119,6 +124,7 @@ class ScrollFrame(tk.Frame):
                 self.viewPort.unbind_all("<Shift-MouseWheel>")
 
     def set_direction(self, direction):
+        """Set scrollbars"""
         if direction in ['both', 'horizontal', 'vertical']:
             self.direction = direction
             self.xscrollbar.grid_forget()
@@ -363,6 +369,7 @@ class PageViewer(ScrollFrame):
         return labelImg
 
     def get_properties(self):
+        """Function setting editor properties later used to scale the pages"""
         # get page viewer properties
         self.frame_width = self.canvas.winfo_width()
         self.frame_height = self.canvas.winfo_height()

@@ -65,6 +65,7 @@ class SidePageViewer(PageViewer):
 
 
 class PagesEditor(PageViewer):
+    """Page editor combinable with a combobox for scaling"""
     def __init__(self, parent, *args, **kwargs):
         if "scale" in kwargs:
             if type(kwargs["scale"]) is tk.StringVar or re.match(
