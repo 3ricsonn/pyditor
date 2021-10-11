@@ -71,7 +71,8 @@ class PagesEditor(PageViewer):
                 self.scale = kwargs["scale"]
             else:
                 ValueError(
-                    "Argument scale must be ether a Stringvar or a string indicating the percentage to scale the image"
+                    "Argument scale must be ether a Stringvar or "
+                    "a string indicating the percentage to scale the image"
                 )
             kwargs.pop("scale")
 

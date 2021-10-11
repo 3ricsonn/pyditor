@@ -28,7 +28,7 @@ class ScrollFrame(tk.Frame):
         )  # place a frame on the canvas, this frame will hold the child widgets
 
         # CUSTOM OPTION
-        # Determines if there will be just a horizontal, just a vertical, or both scroll bars on the frame
+        # Determines if there will be just a horizontal, just a vertical or both scroll bars
         if 'direction' in kwargs and kwargs['direction'] in ['both', 'horizontal', 'vertical']:
             self.direction = kwargs['direction']
             kwargs.pop('direction')
@@ -131,7 +131,7 @@ class ScrollFrame(tk.Frame):
             raise ValueError("Direction must be 'horizontal', 'vertical', or 'both'")
 
     def config_sf(self, **options):
-        """Overwrites the config for the containing frame and sends options to the scrollable frame"""
+        """Overwrites the config for containing frame and sends options to the scrollable frame"""
 
         # Some options will only apply to the canvas
         if 'highlightbackground' in options:
@@ -329,9 +329,11 @@ class PageViewer(ScrollFrame):
 
         # rescale image to fit in the frame
         if self.column == 1:
-            scale = ((self.frame_height - self.offset_horizontal) / img.size[1]) * scaling
+            scale = ((self.frame_height - self.offset_horizontal) / img.size[1])
         else:
-            scale = (((self.frame_width - self.offset_horizontal) / self.column) / img.size[0]) * scaling
+            scale = (((self.frame_width - self.offset_horizontal) / self.column) / img.size[0])
+        scale *= scaling
+
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 
         return scaleImg
