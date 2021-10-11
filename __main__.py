@@ -39,7 +39,7 @@ except getopt.GetoptError:
     sys.exit()
 
 for opt, arg in opts:
-    if opt == "-h" or opt == "--help":
+    if opt in ("-h", "--help"):
         print("""
             Usage: pyditor [OPTIONS] -f file-path
 
