@@ -29,27 +29,37 @@ class ScrollFrame(tk.Frame):
 
         # CUSTOM OPTION
         # Determines if there will be just a horizontal, just a vertical or both scroll bars
-        if 'direction' in kwargs and kwargs['direction'] in ['both', 'horizontal', 'vertical']:
-            self.direction = kwargs['direction']
-            kwargs.pop('direction')
+        if "direction" in kwargs and kwargs["direction"] in [
+            "both",
+            "horizontal",
+            "vertical",
+        ]:
+            self.direction = kwargs["direction"]
+            kwargs.pop("direction")
         else:
-            self.direction = 'both'
+            self.direction = "both"
 
         # config_sf function applies any remaining keyword properties
         self.config_sf(**kwargs)
 
         self.viewPort.bind("<Configure>", self._on_frame_change)
         self.canvas.bind("<Configure>", self._on_canvas_change)
-        self.canvas_window = self.canvas.create_window((0, 0), window=self.viewPort, anchor="nw")
+        self.canvas_window = self.canvas.create_window(
+            (0, 0), window=self.viewPort, anchor="nw"
+        )
 
-        self.xscrollbar = tk.Scrollbar(self, orient='horizontal', command=self.canvas.xview)
+        self.xscrollbar = tk.Scrollbar(
+            self, orient="horizontal", command=self.canvas.xview
+        )
         self.canvas.configure(xscrollcommand=self.xscrollbar.set)
-        self.yscrollbar = tk.Scrollbar(self, orient='vertical', command=self.canvas.yview)
+        self.yscrollbar = tk.Scrollbar(
+            self, orient="vertical", command=self.canvas.yview
+        )
         self.canvas.configure(yscrollcommand=self.yscrollbar.set)
 
         # These functions prevent the canvas from scrolling unless the cursor is in it
-        self.canvas.bind('<Enter>', self._enter_frame)
-        self.canvas.bind('<Leave>', self._leave_frame)
+        self.canvas.bind("<Enter>", self._enter_frame)
+        self.canvas.bind("<Leave>", self._leave_frame)
 
         # This method places the scrollbars onto the containing frame
         self.set_direction(self.direction)
