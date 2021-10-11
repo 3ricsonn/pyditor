@@ -31,16 +31,19 @@ def print_sash_pos():
 try:
     opts, _ = getopt.getopt(sys.argv[1:], shortopts="f:", longopts=["version"])
 except getopt.GetoptError:
-    print("""
+    print(
+        """
     Invalid argument(s)
     For usage information run: pyditor -h | --help
     For version information run: pyditor --version
-    """)
+    """
+    )
     sys.exit()
 
 for opt, arg in opts:
     if opt in ("-h", "--help"):
-        print("""
+        print(
+            """
             Usage: pyditor [OPTIONS] -f file-path
 
             Options:
@@ -49,7 +52,8 @@ for opt, arg in opts:
                     --version           Print program version and exit
                 File editing
                     -f                  Start the editor with the given document
-            """)
+            """
+        )
         sys.exit()
 
     elif opt == "-f":
