@@ -29,12 +29,12 @@ git clone https://github.com/3ricsonn/pyditor.git
 or just download and unpack the zip-file 
 </br>
 </br>
-To install the requirements:
+To install the requirements enter:
 ```
 pip install -r requirements.txt
 ```
 ### Usage
-```bash
+```
 Usage: pyditor [OPTIONS] [-f file-path]
     Options:
         General Options
