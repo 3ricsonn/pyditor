@@ -17,7 +17,7 @@ class PyditorApplication(tk.Frame):
 
         # == Attributes ==
         self.parent = parent
-        self.sashpos = [(190, 1), (1150, 1)]
+        self.sashpos = [(190, 1)]
 
         # == Variables ==
         # variables for the column settings
@@ -45,8 +45,9 @@ class PyditorApplication(tk.Frame):
         # == components definitions ==
         # -- page viewer --
         self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel)
+        self.sidebarTabs = ttk.Notebook(master=self.pageViewerFrame.frame)
         self.pageViewer = SidePageViewer(
-            parent=self.pageViewerFrame.frame, direction="vertical"
+            parent=self.sidebarTabs, direction="vertical"
         )
 
         # -- document editor --
@@ -69,11 +70,6 @@ class PyditorApplication(tk.Frame):
             master=self.editorSettingsFrame, textvariable=self.scaleVar, values=states
         )
 
-        # -- selection viewer --
-        self.selectionViewerFrame = CollapsibleFrame(
-            parent=self.bodyPanel, state="hide", char=(">", "<"), align="right"
-        )
-
         # create placeholder document
         self.PDFDocument: fitz.Document = fitz.Document()
 
@@ -87,8 +83,12 @@ class PyditorApplication(tk.Frame):
         # collapsible Frame as widget container
         self.bodyPanel.add(self.pageViewerFrame)
 
+        # taps for ether displaying all pages for navigation or the selection
+        self.sidebarTabs.pack(fill="both", expand=True)
+
         # Scrollable Frame to display pages of the document
-        self.pageViewer.pack(fill="y", expand=True)
+        self.pageViewer.pack(fill="both", expand=True)
+        self.sidebarTabs.add(self.pageViewer, text="All Pages")
 
         # == main document editor ==
         # Frame as widget container
@@ -109,10 +109,6 @@ class PyditorApplication(tk.Frame):
         self.editorScalingSetting.grid(row=0, column=1, padx=5)
         self.editorScalingSetting.current(5)
 
-        # == selection viewer ==
-        # collapsible Frame as widget container
-        self.bodyPanel.add(self.selectionViewerFrame)
-
         # == Sashes ==
         self.bodyPanel.update()
         for i, pos in enumerate(self.sashpos):
@@ -128,13 +124,6 @@ class PyditorApplication(tk.Frame):
         # bind functions updating pages when scale changed
         self.editorScalingSetting.bind("<<ComboboxSelected>>", self.update_editor)
         self.editorScalingSetting.bind("<Return>", self.update_editor)
-
-        # -- selection viewer --
-        # bind functions when selection viewer shows or hides
-        self.selectionViewerFrame.bind_hide_func(
-            func=lambda: self._hide(index=1, newpos=1330)
-        )
-        self.selectionViewerFrame.bind_show_func(func=lambda: self._show(index=1))
 
         # load document content if opened
         if self.PDFDocument:
@@ -155,7 +144,7 @@ class PyditorApplication(tk.Frame):
     def update_editor(self, *_):
         """Updates the dimensions of the editor after sash been relocated"""
         self.bodyPanel.update()
-        self.pageEditor.update_pages(self.PDFDocument)
+        self.pageEditor.update_pages()
 
     def update_column_value(self, selection):
         """Function to change the number of columns the document is displayed"""
@@ -193,4 +182,9 @@ class PyditorApplication(tk.Frame):
     def exit(self):
         """Function to clean up and end the application"""
         self.PDFDocument.close()
+
+        # save application properties to later restore window how it was while closing
+        # with open(".settings.json", "w") as f:
+        #     pass
+
         sys.exit(1)

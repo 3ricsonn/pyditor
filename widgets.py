@@ -99,7 +99,7 @@ class ScrollFrame(tk.Frame):
                 self.canvas.xview_scroll(1, "units")
 
     def _enter_frame(self, _event):
-        """Bind all scrolling events when leaving frame"""
+        """Bind all scrolling events when entering frame"""
         if platform.system() == "Linux":
             if self.direction != "horizontal":
                 self.canvas.bind_all("<Button-4>", self._on_mouse_wheel)
@@ -109,9 +109,9 @@ class ScrollFrame(tk.Frame):
                 self.canvas.bind_all("<Shift-Button-5>", self._on_shift_mouse_wheel)
         else:
             if self.direction != "horizontal":
-                self.viewPort.bind_all("<MouseWheel>", self._on_mouse_wheel)
+                self.canvas.bind_all("<MouseWheel>", self._on_mouse_wheel)
             if self.direction != "vertical":
-                self.viewPort.bind_all("<Shift-MouseWheel>", self._on_shift_mouse_wheel)
+                self.canvas.bind_all("<Shift-MouseWheel>", self._on_shift_mouse_wheel)
 
     def _leave_frame(self, _event):
         """Unbind all scrolling events when leaving frame"""
@@ -124,9 +124,9 @@ class ScrollFrame(tk.Frame):
                 self.canvas.unbind_all("<Shift-Button-5>")
         else:
             if self.direction != "horizontal":
-                self.viewPort.unbind_all("<MouseWheel>")
+                self.canvas.unbind_all("<MouseWheel>")
             if self.direction != "vertical":
-                self.viewPort.unbind_all("<Shift-MouseWheel>")
+                self.canvas.unbind_all("<Shift-MouseWheel>")
 
     def set_direction(self, direction):
         """Set scrollbars"""
@@ -264,6 +264,7 @@ class PageViewer(ScrollFrame):
     """Scrollable Frame to display pages of a pdf document"""
 
     def __init__(self, parent, column=1, *args, **kwargs):
+        self.document = fitz.Document()
         self.pages = []
         self.column = column
         self._scaling = 1
@@ -282,6 +283,8 @@ class PageViewer(ScrollFrame):
         """Displays all pages of the document vertically"""
         if len(document) == 0:
             return None
+
+        self.document = document
 
         # clear viewPort frame
         self.clear()
@@ -312,17 +315,17 @@ class PageViewer(ScrollFrame):
     #     )
     #     if self.current != current:
     #         self.update_pages(self.document)
-    #         self.current = current
+    #         self.current = current        self.document = document
 
-    def update_pages(self, document: fitz.Document):
+    def update_pages(self):
         """Recreate images and blit it on existing labels"""
         self.get_properties()
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             imgs = executor.map(
                 self.convert_page,
-                document,
-                itertools.repeat(self.scaling, times=len(document)),
+                self.document,
+                itertools.repeat(self.scaling, times=len(self.document)),
             )
 
         for index, img in enumerate(imgs):  # , start=self.current):

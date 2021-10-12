@@ -1,5 +1,6 @@
 import re
 import tkinter as tk
+from tkinter import messagebox
 
 import fitz  # PyMuPDF
 from PIL import Image
@@ -61,13 +62,14 @@ class SidePageViewer(PageViewer):
 
         # jump with added page viewer to selected page
         if self._related:
-            self._related.jump_to_page(event.widget.id - 1)
+            self._related.jump_to_page(event.widget.id)
 
 
 class PagesEditor(PageViewer):
     """Page editor combinable with a combobox for scaling"""
 
     def __init__(self, parent, *args, **kwargs):
+        # arguments
         if "scale" in kwargs:
             if type(kwargs["scale"]) is tk.StringVar or re.match(
                 "^[0-9]{1,3}%$", kwargs["scale"]
@@ -86,11 +88,19 @@ class PagesEditor(PageViewer):
     def scaling(self):
         """Gets the selected scaling and calculate the scaling factor"""
         scale = self.scale.get() if type(self.scale) is tk.StringVar else self.scale
+
+        if not re.match("^[0-9]{1,3}", scale):
+            messagebox.showerror(
+                title="Invalid scaling",
+                message="You entered an invalid scaling factor. Please make sure you entered a number."
+            )
+            return 1
+
         return int(scale[:-1]) / 100
 
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""
-        overlap = 1 if self.column >= 2 else 0
+        if_overlap = 1 if len(self.pages) % self.column != 0 else 0
         self.canvas.yview_moveto(
-            str((page // self.column) / (len(self.pages) // self.column + overlap))
+            str((page // self.column) / (len(self.pages) // self.column + if_overlap))
         )

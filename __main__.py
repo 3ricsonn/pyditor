@@ -114,7 +114,7 @@ rootWindow.config(menu=mainMenu)
 
 # creating menu taps
 # file-menu
-fileMenu = tk.Menu(master=mainMenu)
+fileMenu = tk.Menu(master=mainMenu, tearoff=False)
 mainMenu.add_cascade(label="File", menu=fileMenu)
 fileMenu.add_command(label="Open", command=app.open_file)
 fileMenu.add_command(label="Save", command=app.save_file)
@@ -123,7 +123,7 @@ fileMenu.add_separator()
 fileMenu.add_command(label="Exit", command=rootWindow.quit)
 
 # debugging
-debug = tk.Menu(master=rootWindow)
+debug = tk.Menu(master=rootWindow, tearoff=False)
 mainMenu.add_cascade(label="debug", menu=debug)
 debug.add_command(label="sash", command=print_sash_pos)
 
