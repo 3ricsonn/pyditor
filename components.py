@@ -72,7 +72,7 @@ class PagesEditor(PageViewer):
         # arguments
         if "scale" in kwargs:
             if type(kwargs["scale"]) is tk.StringVar or re.match(
-                "^[0-9]{1,3}%$", kwargs["scale"]
+                    "^[0-9]{1,3}%$", kwargs["scale"]
             ):
                 self.scale = kwargs["scale"]
             else:
@@ -83,6 +83,32 @@ class PagesEditor(PageViewer):
             kwargs.pop("scale")
 
         super().__init__(parent, *args, **kwargs)
+
+        # == right-click popup menu ==
+        self.popupMenu = tk.Menu(master=self.canvas, tearoff=False)
+        self.popupMenu.add_command(label="Copy", command=self.copy_selected)
+        self.popupMenu.add_command(label="Cut", command=self.cut_selected)
+        self.popupMenu.add_command(label="Past", command=self.past_selected)
+
+    def _enter_frame(self, _event):
+        super()._enter_frame(_event)
+        self.canvas.bind_all("<Button-3>", self.popup)
+
+    def _leave_frame(self, _event):
+        super()._leave_frame(_event)
+        self.canvas.unbind_all("<Button-3>")
+
+    def popup(self, event):
+        self.popupMenu.tk_popup(event.x_root, event.y_root)
+
+    def copy_selected(self):
+        pass
+
+    def cut_selected(self):
+        pass
+
+    def past_selected(self):
+        pass
 
     @property
     def scaling(self):
