@@ -4,10 +4,19 @@
  </a>
  <a href="https://github.com/3ricsonn/pyditor/actions/workflows/python-app.yml">
   <img alt="Run linter and tests" src="https://github.com/3ricsonn/pyditor/actions/workflows/python-app.yml/badge.svg">
-</a>
+ </a>
+ <a href="https://github.com/3ricsonn/pyditor/actions/workflows/codeql-analysis.yml">
+  <img alt="CodeQL" src="https://github.com/3ricsonn/pyditor/actions/workflows/codeql-analysis.yml/badge.svg">
+ </a>
 </p>
 
----
+<p align="center">
+ <a href="https://github.com/3ricsonn/pyditor/blob/master/LICENSE">
+  <img alt="GitHub" src="https://img.shields.io/github/license/3ricsonn/pyditor?color=blue&style=plastic">
+ </a>
+ <img src="https://img.shields.io/badge/Language-Python-yellow?style=plastic&logo=python" >
+</p>
+
 <h1 align="center">Pyditor – Small PDF-Editor written in Python</h1>
 
 Pyditor is a small pdf-editor to open and rearrange pages in pdf-files. 
