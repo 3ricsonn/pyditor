@@ -64,7 +64,7 @@ for opt, arg in opts:
     if opt in ("-h", "--help"):
         print(
             """
-            Usage: pyditor [OPTIONS] -f file-path
+            Usage: pyditor [OPTIONS] [-f file-path]
 
             Options:
                 General Options
