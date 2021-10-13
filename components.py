@@ -19,6 +19,10 @@ class SidePageViewer(PageViewer):
         # related page viewer to display selected page
         self._related: PagesEditor = None
 
+    def _leave_frame(self, _event):
+        super()._leave_frame(_event)
+        self.clear_selection()
+
     def add_page_viewer_relation(self, widget):
         """Add page viewer to be able to jump to a selected page"""
         self._related = widget
@@ -65,6 +69,10 @@ class SidePageViewer(PageViewer):
             self._related.jump_to_page(event.widget.id)
 
 
+class SideSelectionViewer(PageViewer):
+    pass
+
+
 class PagesEditor(PageViewer):
     """Page editor combinable with a combobox for scaling"""
 
@@ -84,11 +92,18 @@ class PagesEditor(PageViewer):
 
         super().__init__(parent, *args, **kwargs)
 
+        # selected pages
+        self.selection: list = []
+        self.last_selected: int = 0
+
         # == right-click popup menu ==
         self.popupMenu = tk.Menu(master=self.canvas, tearoff=False)
         self.popupMenu.add_command(label="Copy", command=self.copy_selected)
         self.popupMenu.add_command(label="Cut", command=self.cut_selected)
         self.popupMenu.add_command(label="Past", command=self.past_selected)
+        self.popupMenu.add_separator()
+        self.popupMenu.add_command(label="Undo")
+        self.popupMenu.add_command(label="Redo")
 
     def _enter_frame(self, _event):
         super()._enter_frame(_event)
@@ -109,6 +124,51 @@ class PagesEditor(PageViewer):
 
     def past_selected(self):
         pass
+
+    def load_pages(self, document: fitz.Document) -> None:
+        super().load_pages(document)
+
+        for page in self.pages:
+            page.bind("<Button-1>", func=self.select_page)
+            page.bind("<Control-Button-1>", func=self.select_pages_control)
+            page.bind("<Shift-Button-1>", func=self.select_pages_shift)
+
+    def select_page(self, event):
+        if event.widget.id in self.selection:
+            self.clear_selection()
+        else:
+            self.clear_selection()
+            event.widget.config(bg="blue")
+            self.last_selected = event.widget.id
+            self.selection.append(event.widget.id)
+
+    def select_pages_control(self, event):
+        if event.widget.id in self.selection:
+            event.widget.config(bg="#cecfd0")
+            self.selection.remove(event.widget.id)
+        else:
+            event.widget.config(bg="blue")
+            self.last_selected = event.widget.id
+
+            self.selection.append(event.widget.id)
+
+    def select_pages_shift(self, event):
+        if self.last_selected < event.widget.id:
+            start = self.last_selected
+            end = event.widget.id
+        else:
+            start = event.widget.id
+            end = self.last_selected
+
+        for widget in self.viewPort.winfo_children()[start:end + 1]:
+            widget.config(bg="blue")
+            self.selection.append(widget.id)
+
+    def clear_selection(self):
+        for widget in self.viewPort.winfo_children():
+            widget.config(bg="#cecfd0")
+
+        self.selection.clear()
 
     @property
     def scaling(self):

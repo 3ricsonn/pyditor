@@ -99,36 +99,37 @@ rootWindow.title("Pyditor - edit PDFs")
 rootWindow.geometry("1350x1300")
 
 # creating and packing the Main Application
-app = PyditorApplication(rootWindow)
-app.pack(fill="both", expand=True)
-app.load_components()
+with PyditorApplication(rootWindow) as app:
 
-# open file via commandline
-if file_path != "":
-    app.set_document(doc=file_path)
+    # open file via commandline
+    if file_path != "":
+        app.set_document(doc=file_path)
 
-# == creating menus ==
-# the main menu
-mainMenu = tk.Menu(master=rootWindow)
-rootWindow.config(menu=mainMenu)
+    # == creating menus ==
+    # the main menu
+    mainMenu = tk.Menu(master=rootWindow)
+    rootWindow.config(menu=mainMenu)
 
-# creating menu taps
-# file-menu
-fileMenu = tk.Menu(master=mainMenu, tearoff=False)
-mainMenu.add_cascade(label="File", menu=fileMenu)
-fileMenu.add_command(label="Open", command=app.open_file)
-fileMenu.add_command(label="Save", command=app.save_file)
-fileMenu.add_command(label="Save as...", command=app.save_file_name)
-fileMenu.add_separator()
-fileMenu.add_command(label="Exit", command=rootWindow.quit)
+    # creating menu taps
+    # -- file-menu --
+    fileMenu = tk.Menu(master=mainMenu, tearoff=False)
+    mainMenu.add_cascade(label="File", menu=fileMenu)
+    fileMenu.add_command(label="Open", command=app.open_file)
+    fileMenu.add_command(label="Save", command=app.save_file)
+    fileMenu.add_command(label="Save as...", command=app.save_file_name)
+    fileMenu.add_separator()
+    fileMenu.add_command(label="Exit", command=rootWindow.quit)
 
-# debugging
-debug = tk.Menu(master=rootWindow, tearoff=False)
-mainMenu.add_cascade(label="debug", menu=debug)
-debug.add_command(label="sash", command=print_sash_pos)
+    # -- edit-menu --
+    editMenu = tk.Menu(master=mainMenu, tearoff=False)
+    mainMenu.add_cascade(label="Edit", menu=editMenu)
+    editMenu.add_command(label="Undo")
+    editMenu.add_command(label="Redo")
 
-# run the windows mainloop
-try:
+    # debugging
+    debug = tk.Menu(master=rootWindow, tearoff=False)
+    mainMenu.add_cascade(label="debug", menu=debug)
+    debug.add_command(label="sash", command=print_sash_pos)
+
+    # run the windows mainloop
     rootWindow.mainloop()
-finally:
-    app.exit()

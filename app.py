@@ -73,6 +73,24 @@ class PyditorApplication(tk.Frame):
         # create placeholder document
         self.PDFDocument: fitz.Document = fitz.Document()
 
+    def __enter__(self):
+        self.pack(fill="both", expand=True)
+        self.load_components()
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        """Function to clean up and end the application"""
+        self.PDFDocument.close()
+
+        # save application properties to later restore window how it was while closing
+        # with open(".settings.json", "w") as f:
+        #     pass
+
+        if exc_type:
+            raise exc_value
+        else:
+            sys.exit(0)
+
     def load_components(self) -> None:
         """Load the components for page-viewer"""
         # == toolbar ==
@@ -178,13 +196,3 @@ class PyditorApplication(tk.Frame):
 
     def save_file_name(self):
         """Saves the edited pdf-file asking for a name"""
-
-    def exit(self):
-        """Function to clean up and end the application"""
-        self.PDFDocument.close()
-
-        # save application properties to later restore window how it was while closing
-        # with open(".settings.json", "w") as f:
-        #     pass
-
-        sys.exit(1)
