@@ -19,8 +19,9 @@ __all__ = ["ScrollFrame", "CollapsibleFrame", "PageViewer"]
 class ScrollFrame(tk.Frame):
     """A Scrollable Frame Class"""
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, event_handler, *args, **kwargs):
         super().__init__(parent)
+        self.handler = event_handler
 
         self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
         self.viewPort = tk.Frame(
@@ -69,6 +70,11 @@ class ScrollFrame(tk.Frame):
         tk.Grid.columnconfigure(self, 0, weight=1)
         tk.Grid.rowconfigure(self, 1, weight=0)
         tk.Grid.columnconfigure(self, 1, weight=0)
+
+        self.update()
+        self.canvas.update()
+        assert bool(self.canvas.winfo_exists()) is True
+        assert bool(self.canvas.winfo_ismapped()) is True
 
     def _on_frame_change(self, _event):
         """Function called when frame size changed"""
@@ -191,9 +197,10 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-        self, parent, state="show", char=("<", ">"), align="left", *args, **kwargs
+            self, parent, event_handler, state="show", char=("<", ">"), align="left", *args, **kwargs
     ):
         super().__init__(master=parent, *args, **kwargs)
+        self.handler = event_handler
 
         # == store attributes ==
         # stores the state the frame starts in
@@ -227,32 +234,33 @@ class CollapsibleFrame(tk.Frame):
 
         # -- display components --
         self._hideButton.pack(fill="y", side=self.align[1])
-        if self.state == "show":
-            self._show()
-        else:
-            self._hide()
+        # self.handler.call(hook=str(self) + "-" + self.state, value_hook=str(self) + "-" + self.state)
+        # if self.state == "show":
+        #     self._show()
+        # else:
+        #     self._hide()
 
-    def bind_hide_func(self, func) -> None:
-        """Bind a function when frame hides and calls it"""
-        self._func_hide = func
-        if self.state == "hide":
-            self._func_hide()
+    # def bind_hide_func(self, func) -> None:
+    #   """Bind a function when frame hides and calls it"""
+    #   self._func_hide = func
+    #   if self.state == "hide":
+    #       self._func_hide()#
 
-    def bind_show_func(self, func) -> None:
-        """Bind a function when frame hides and calls it"""
-        self._func_show = func
-        if self.state == "show":
-            self._func_show()
+    # def bind_show_func(self, func) -> None:
+    #    """Bind a function when frame hides and calls it"""
+    #    self._func_show = func
+    #    if self.state == "show":
+    #        self._func_show()
 
     def _hide(self) -> None:
         """Hide content expects the button"""
-        self._func_hide()
+        self.handler.call(hook=str(self) + "-hide", value_hook=str(self) + "-hide")
         self.frame.pack_forget()
         self._hideButton.config(text=self.char[1], command=self._show)
 
     def _show(self) -> None:
         """Reshow content"""
-        self._func_show()
+        self.handler.call(hook=str(self) + "-show", value_hook=str(self) + "-show")
         self.frame.pack(fill="both", side=self.align[0])
         self._hideButton.config(text=self.char[0], command=self._hide)
 
@@ -263,13 +271,19 @@ class CollapsibleFrame(tk.Frame):
 class PageViewer(ScrollFrame):
     """Scrollable Frame to display pages of a pdf document"""
 
-    def __init__(self, parent, column=1, *args, **kwargs):
-        self.document = fitz.Document()
+    def __init__(self, parent, *args, **kwargs):
         self.pages = []
-        self.column = column
+
+        if "column" in kwargs:
+            self.column = kwargs["column"]
+            kwargs.pop("column")
+        else:
+            self.column = 1
+
+        # constants
         self._scaling = 1
-        self.frame_width = 0
-        self.frame_height = 0
+        self.canvas_width = 0
+        self.canvas_height = 0
         self.offset_vertical = 10
         self.offset_horizontal = 10
 
@@ -279,16 +293,16 @@ class PageViewer(ScrollFrame):
     def scaling(self):
         return self._scaling
 
-    def load_pages(self, document: fitz.Document) -> None:
+    def load_pages(self) -> None:
         """Displays all pages of the document vertically"""
+        document = self.handler.get_values("document")
         if len(document) == 0:
             return None
-
-        self.document = document
 
         # clear viewPort frame
         self.clear()
 
+        assert bool(self.canvas.winfo_ismapped()) is True
         # get page viewer properties
         self.get_properties()
 
@@ -319,13 +333,14 @@ class PageViewer(ScrollFrame):
 
     def update_pages(self):
         """Recreate images and blit it on existing labels"""
+        document = self.handler.get_values("document")
         self.get_properties()
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             imgs = executor.map(
                 self.convert_page,
-                self.document,
-                itertools.repeat(self.scaling, times=len(self.document)),
+                document,
+                itertools.repeat(self.scaling, times=len(document)),
             )
 
         for index, img in enumerate(imgs):  # , start=self.current):
@@ -345,11 +360,13 @@ class PageViewer(ScrollFrame):
 
         # rescale image to fit in the frame
         if self.column == 1:
-            scale = (self.frame_height - self.offset_horizontal) / img.size[1]
+            scale = (self.canvas_height - self.offset_horizontal) / img.size[1]
         else:
             scale = (
-                (self.frame_width - self.offset_horizontal) / self.column
-            ) / img.size[0]
+                            (self.canvas_width - self.offset_horizontal) / self.column
+                    ) / img.size[0]
+
+        # print(scale)
 
         scale *= scaling
 
@@ -384,14 +401,16 @@ class PageViewer(ScrollFrame):
     def get_properties(self):
         """Function setting editor properties later used to scale the pages"""
         # get page viewer properties
-        self.frame_width = self.canvas.winfo_width()
-        self.frame_height = self.canvas.winfo_height()
+        self.canvas_width = self.canvas.winfo_width()
+        print(bool(self.canvas.winfo_ismapped()))
+        print(self.canvas_width)
+        self.canvas_height = self.canvas.winfo_height()
 
         # get width and height of the scrollbar to later calculate the offset
         # also subtract 10 for padding between pages
-        if self.yscrollbar.winfo_ismapped():  # test if a vertical scrollbar is packed
+        if self.yscrollbar.winfo_ismapped():  # test if a vertical scrollbar is displayed
             self.offset_horizontal = self.yscrollbar.winfo_width() + 10
-        if self.xscrollbar.winfo_ismapped():  # test if a horizontal scrollbar is packed
+        if self.xscrollbar.winfo_ismapped():  # test if a horizontal scrollbar is displayed
             self.offset_vertical = self.xscrollbar.winfo_height() + 10
 
     def clear(self) -> None:

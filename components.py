@@ -7,7 +7,7 @@ from PIL import Image
 
 from widgets import PageViewer
 
-__all__ = ["SidePageViewer", "PagesEditor"]
+__all__ = ["SidePageViewer", "SideSelectionViewer", "PagesEditor"]
 
 
 class SidePageViewer(PageViewer):
@@ -17,19 +17,19 @@ class SidePageViewer(PageViewer):
         super().__init__(parent, *args, **kwargs)
 
         # related page viewer to display selected page
-        self._related: PagesEditor = None
+        # self._related: PagesEditor = None
 
     def _leave_frame(self, _event):
         super()._leave_frame(_event)
         self.clear_selection()
 
-    def add_page_viewer_relation(self, widget):
-        """Add page viewer to be able to jump to a selected page"""
-        self._related = widget
+    # def add_page_viewer_relation(self, widget):
+    #     """Add page viewer to be able to jump to a selected page"""
+    #     self._related = widget
 
-    def load_pages(self, document: fitz.Document) -> None:
+    def load_pages(self) -> None:
         """Displays all pages of the document vertically"""
-        super().load_pages(document)
+        super().load_pages()
 
         for i, label in enumerate(self.pages, 1):
             # add title to page
@@ -47,7 +47,9 @@ class SidePageViewer(PageViewer):
         img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
 
         # rescale image to fit in the frame
-        scale = (((self.frame_width - 16) / self.column) / img.size[0]) * scaling
+        # print(f"((({self.canvas_width} - {16}) / {self.column}) / {img.size[0]})")
+        scale = (((self.canvas_width - 16) / self.column) / img.size[0]) * scaling
+        # scale *= scaling
 
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 
@@ -65,8 +67,9 @@ class SidePageViewer(PageViewer):
         event.widget.config(bg="blue")
 
         # jump with added page viewer to selected page
-        if self._related:
-            self._related.jump_to_page(event.widget.id)
+        self.handler.call("jump-page", event.widget.id)
+        # if self._related:
+        #     self._related.jump_to_page(event.widget.id)
 
 
 class SideSelectionViewer(PageViewer):
@@ -93,7 +96,8 @@ class PagesEditor(PageViewer):
         super().__init__(parent, *args, **kwargs)
 
         # selected pages
-        self.selection: list = []
+        self.handler.add_values("selection", [])
+        # self.selection: list = []
         self.last_selected: int = 0
 
         # == right-click popup menu ==
@@ -125,8 +129,8 @@ class PagesEditor(PageViewer):
     def past_selected(self):
         pass
 
-    def load_pages(self, document: fitz.Document) -> None:
-        super().load_pages(document)
+    def load_pages(self) -> None:
+        super().load_pages()
 
         for page in self.pages:
             page.bind("<Button-1>", func=self.select_page)
@@ -134,23 +138,23 @@ class PagesEditor(PageViewer):
             page.bind("<Shift-Button-1>", func=self.select_pages_shift)
 
     def select_page(self, event):
-        if event.widget.id in self.selection:
+        if event.widget.id in self.handler.get_values("selection"):
             self.clear_selection()
         else:
             self.clear_selection()
             event.widget.config(bg="blue")
             self.last_selected = event.widget.id
-            self.selection.append(event.widget.id)
+            self.handler.get_values("selection").append(event.widget.id)
 
     def select_pages_control(self, event):
-        if event.widget.id in self.selection:
+        if event.widget.id in self.handler.get_values("selection"):
             event.widget.config(bg="#cecfd0")
-            self.selection.remove(event.widget.id)
+            self.handler.get_values("selection").remove(event.widget.id)
         else:
             event.widget.config(bg="blue")
             self.last_selected = event.widget.id
 
-            self.selection.append(event.widget.id)
+            self.handler.get_values("selection").append(event.widget.id)
 
     def select_pages_shift(self, event):
         if self.last_selected < event.widget.id:
@@ -162,13 +166,13 @@ class PagesEditor(PageViewer):
 
         for widget in self.viewPort.winfo_children()[start:end + 1]:
             widget.config(bg="blue")
-            self.selection.append(widget.id)
+            self.handler.get_values("selection").append(widget.id)
 
     def clear_selection(self):
         for widget in self.viewPort.winfo_children():
             widget.config(bg="#cecfd0")
 
-        self.selection.clear()
+        self.handler.get_values("selection").clear()
 
     @property
     def scaling(self):

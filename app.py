@@ -5,8 +5,49 @@ from tkinter.filedialog import askopenfilename
 
 import fitz  # PyMuPDF
 
-from components import SidePageViewer, PagesEditor
+from components import SidePageViewer, PagesEditor, SideSelectionViewer
 from widgets import CollapsibleFrame
+
+__all__ = ["PyditorApplication"]
+
+
+class EventHandler:
+    __functions = {}
+    __values = {}
+
+    def add_funcs(self, hook: str, *func):
+        self.__functions[hook] = func
+
+    def add_values(self, hook: str, *args, **kwargs):
+        self.__values[hook] = args, kwargs
+
+    def call(self, hook: str, value_hook="", *args, **kwargs):
+        result = []
+        for func in self.__functions[hook]:
+            if value_hook:
+                args += self.__values[value_hook][0]
+                kwargs += self.__values[value_hook][1]
+            result.append(func(*args, **kwargs))
+
+        return result if len(result) > 1 else result[0]
+
+    def get_values(self, hook):
+        if len(self.__values[hook][0]) == 0:
+            if len(self.__values[hook][1]) == 0:
+                return None
+            else:
+                return self.__values[hook][1]
+        elif len(self.__values[hook][0]) == 1:
+            if len(self.__values[hook][1]) == 0:
+                return self.__values[hook][0][0]
+        else:
+            if len(self.__values[hook][1]) == 0:
+                return self.__values[hook][0]
+            else:
+                return self.__values[hook]
+
+    def print(self):
+        print(self.__values)
 
 
 class PyditorApplication(tk.Frame):
@@ -15,9 +56,15 @@ class PyditorApplication(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
+        # handler for communication between components
+        self.handler = EventHandler()
+
+        # create placeholder document
+        self.handler.add_values("document", fitz.Document())
+
         # == Attributes ==
         self.parent = parent
-        self.sashpos = [(190, 1)]
+        self.sashpos = [(200, 1)]
 
         # == Variables ==
         # variables for the column settings
@@ -44,16 +91,19 @@ class PyditorApplication(tk.Frame):
 
         # == components definitions ==
         # -- page viewer --
-        self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel)
+        self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel, event_handler=self.handler)
         self.sidebarTabs = ttk.Notebook(master=self.pageViewerFrame.frame)
-        self.pageViewer = SidePageViewer(
-            parent=self.sidebarTabs, direction="vertical"
+        self.pageViewerTab = SidePageViewer(
+            parent=self.sidebarTabs, event_handler=self.handler, direction="vertical"
+        )
+        self.selectionViewerTab = SideSelectionViewer(
+            parent=self.sidebarTabs, event_handler=self.handler, direction="vertical"
         )
 
         # -- document editor --
         self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
         self.pageEditor = PagesEditor(
-            parent=self.editorFrame, column=2, scale=self.scaleVar, direction="both"
+            parent=self.editorFrame, event_handler=self.handler, column=2, scale=self.scaleVar, direction="both"
         )
 
         # frame to store setting widgets
@@ -70,9 +120,6 @@ class PyditorApplication(tk.Frame):
             master=self.editorSettingsFrame, textvariable=self.scaleVar, values=states
         )
 
-        # create placeholder document
-        self.PDFDocument: fitz.Document = fitz.Document()
-
     def __enter__(self):
         self.pack(fill="both", expand=True)
         self.load_components()
@@ -80,7 +127,7 @@ class PyditorApplication(tk.Frame):
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         """Function to clean up and end the application"""
-        self.PDFDocument.close()
+        self.handler.get_values("document").close()
 
         # save application properties to later restore window how it was while closing
         # with open(".settings.json", "w") as f:
@@ -105,8 +152,12 @@ class PyditorApplication(tk.Frame):
         self.sidebarTabs.pack(fill="both", expand=True)
 
         # Scrollable Frame to display pages of the document
-        self.pageViewer.pack(fill="both", expand=True)
-        self.sidebarTabs.add(self.pageViewer, text="All Pages")
+        self.pageViewerTab.pack(fill="both", expand=True)
+        self.sidebarTabs.add(self.pageViewerTab, text="All Pages")
+
+        # Scrollable Frame to display all selected pages
+        self.selectionViewerTab.pack(fill="both", expand=True)
+        self.sidebarTabs.add(self.selectionViewerTab, text="Selection")
 
         # == main document editor ==
         # Frame as widget container
@@ -135,18 +186,19 @@ class PyditorApplication(tk.Frame):
         # == Bindings ==
         # -- page viewer --
         # bind functions when page viewer shows or hides
-        self.pageViewerFrame.bind_hide_func(func=lambda: self._hide(index=0, newpos=20))
-        self.pageViewerFrame.bind_show_func(func=lambda: self._show(index=0))
-        self.pageViewer.add_page_viewer_relation(widget=self.pageEditor)
+        self.handler.add_funcs(str(self.pageViewerFrame)+"-hide", self._hide)
+        self.handler.add_values(str(self.pageViewerFrame)+"-hide", index=0, newpos=20)
+        # self.pageViewerFrame.bind_hide_func(func=lambda: self._hide(index=0, newpos=20))
+        self.handler.add_funcs(str(self.pageViewerFrame)+"-show", self._show)
+        self.handler.add_values(str(self.pageViewerFrame)+"-show", index=0)
+        # self.pageViewerFrame.bind_show_func(func=lambda: self._show(index=0))
+        # self.pageViewerTab.add_page_viewer_relation(widget=self.pageEditor)
+
+        self.handler.add_funcs("jump-page", self.pageEditor.jump_to_page)
 
         # bind functions updating pages when scale changed
         self.editorScalingSetting.bind("<<ComboboxSelected>>", self.update_editor)
         self.editorScalingSetting.bind("<Return>", self.update_editor)
-
-        # load document content if opened
-        if self.PDFDocument:
-            self.pageViewer.load_pages(document=self.PDFDocument)
-            self.pageEditor.load_pages(document=self.PDFDocument)
 
     def _hide(self, index: int, newpos: int):
         """Function called when collapsible frame hides to relocate sash on newpos"""
@@ -169,7 +221,7 @@ class PyditorApplication(tk.Frame):
         self.scaleVar.set("100%")
         self.pageEditor.column = int(selection[0])
         self.pageEditor.canvas.yview_moveto(0.0)
-        self.pageEditor.load_pages(self.PDFDocument)
+        self.pageEditor.load_pages()
 
     def open_file(self):
         """Opens a filedialog and convert selected pdf-file to a 'fitz.Document'"""
@@ -183,10 +235,11 @@ class PyditorApplication(tk.Frame):
 
     def set_document(self, doc: str) -> None:
         """Create document from path and load pages onto the viewer-frames"""
-        self.PDFDocument = fitz.Document(doc)
+        self.handler.add_values("document", fitz.Document(doc))
+        # self.handler.print()
 
-        self.pageViewer.load_pages(document=self.PDFDocument)
-        self.pageEditor.load_pages(document=self.PDFDocument)
+        self.pageViewerTab.load_pages()
+        self.pageEditor.load_pages()
 
         # rename title with according file path
         self.parent.title("Pyditor - editing: " + doc)
