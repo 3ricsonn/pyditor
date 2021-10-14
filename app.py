@@ -35,7 +35,7 @@ class EventHandler:
 
     def call(self, hook: str, *args, **kwargs):
         """Calls function at the key 'hook" with ether the given arguments or/and
-        values stored in itself at 'value_hook' """
+        values stored in itself at 'value_hook'"""
         result = []
         args = [*args]
         # print(self.__functions[hook])
@@ -136,7 +136,7 @@ class PyditorApplication(tk.Frame):
             event_handler=self.handler,
             column=2,
             scale=self.scaleVar,
-            direction="both"
+            direction="both",
         )
 
         # frame to store setting widgets
@@ -220,9 +220,9 @@ class PyditorApplication(tk.Frame):
         # -- page viewer --
         # bind functions when page viewer shows or hides
         self.handler.set_funcs(str(self.pageViewerFrame) + "-hide", self._hide)
-        self.handler.add_values(str(self.pageViewerFrame)+"-hide", index=0, newpos=20)
+        self.handler.add_values(str(self.pageViewerFrame) + "-hide", index=0, newpos=20)
         self.handler.set_funcs(str(self.pageViewerFrame) + "-show", self._show)
-        self.handler.add_values(str(self.pageViewerFrame)+"-show", index=0)
+        self.handler.add_values(str(self.pageViewerFrame) + "-show", index=0)
 
         self.handler.set_funcs("jump-page", self.pageEditor.jump_to_page)
 
@@ -233,7 +233,7 @@ class PyditorApplication(tk.Frame):
     def jump_to_selection(self, *_, **__):
         """Move to the second tab on the sidebar"""
         self.sidebarTabs.select(1)
-    
+
     def _hide(self, index: int, newpos: int):
         """Function called when collapsible frame hides to relocate sash on newpos"""
         self.sashpos[index] = self.bodyPanel.sash_coord(index)
