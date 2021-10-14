@@ -20,7 +20,9 @@ class OneColumnPageViewer(PageViewer):
 
         # rescale image to fit in the frame
         # print(f"((({self.canvas_width} - {self.offset_horizontal}) / {self.column}) / {img.size[0]})")
-        scale = (((self.canvas_width - self.offset_horizontal) / self.column) / img.size[0])
+        scale = ((self.canvas_width - self.offset_horizontal) / self.column) / img.size[
+            0
+        ]
         scale *= scaling
 
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
@@ -63,6 +65,7 @@ class SidePageViewer(OneColumnPageViewer):
 
 class SideSelectionViewer(OneColumnPageViewer):
     """View all selected pages to later past in main document"""
+
     def __init__(self, parent, *args, **kwargs):
         super(OneColumnPageViewer, self).__init__(parent, *args, **kwargs)
 
@@ -96,9 +99,7 @@ class SideSelectionViewer(OneColumnPageViewer):
         """Gets selection from page editor"""
         sorted(selection)
         for page_num in set(selection):
-            self.pages.append(
-                self.handler.get_values("document")[page_num]
-            )
+            self.pages.append(self.handler.get_values("document")[page_num])
 
         self.load_pages()
 
@@ -117,7 +118,7 @@ class PagesEditor(PageViewer):
         # arguments
         if "scale" in kwargs:
             if type(kwargs["scale"]) is tk.StringVar or re.match(
-                    "^[0-9]{1,3}%$", kwargs["scale"]
+                "^[0-9]{1,3}%$", kwargs["scale"]
             ):
                 self.scale = kwargs["scale"]
             else:
@@ -209,7 +210,7 @@ class PagesEditor(PageViewer):
             start = event.widget.id
             end = self.last_selected
 
-        for widget in self.viewPort.winfo_children()[start:end + 1]:
+        for widget in self.viewPort.winfo_children()[start : end + 1]:
             widget.config(bg="blue")
             if widget.id != self.last_selected:  # ensures no duplicates
                 self.handler.get_values("selection").append(widget.id)
@@ -229,7 +230,7 @@ class PagesEditor(PageViewer):
         if not re.match("^[0-9]{1,3}", scale):
             messagebox.showerror(
                 title="Invalid scaling",
-                message="You entered an invalid scaling factor. Please make sure you entered a number."
+                message="You entered an invalid scaling factor. Please make sure you entered a number.",
             )
             return 1
 
@@ -239,5 +240,8 @@ class PagesEditor(PageViewer):
         """Jumps with scrollbar to given page"""
         if_overlap = 1 if len(self.page_label) % self.column != 0 else 0
         self.canvas.yview_moveto(
-            str((page // self.column) / (len(self.page_label) // self.column + if_overlap))
+            str(
+                (page // self.column)
+                / (len(self.page_label) // self.column + if_overlap)
+            )
         )

@@ -13,6 +13,7 @@ __all__ = ["PyditorApplication"]
 
 class EventHandler:
     """Centralised event-handler for communication between the components"""
+
     __functions = {}
     __values = {}
 
@@ -114,7 +115,9 @@ class PyditorApplication(tk.Frame):
 
         # == components definitions ==
         # -- page viewer --
-        self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel, event_handler=self.handler)
+        self.pageViewerFrame = CollapsibleFrame(
+            parent=self.bodyPanel, event_handler=self.handler
+        )
         self.sidebarTabs = ttk.Notebook(master=self.pageViewerFrame.frame)
         self.handler.set_funcs("get-selection", self.jump_to_selection)
         self.pageViewerTab = SidePageViewer(
@@ -127,7 +130,11 @@ class PyditorApplication(tk.Frame):
         # -- document editor --
         self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
         self.pageEditor = PagesEditor(
-            parent=self.editorFrame, event_handler=self.handler, column=2, scale=self.scaleVar, direction="both"
+            parent=self.editorFrame,
+            event_handler=self.handler,
+            column=2,
+            scale=self.scaleVar,
+            direction="both",
         )
 
         # frame to store setting widgets
@@ -211,9 +218,9 @@ class PyditorApplication(tk.Frame):
         # -- page viewer --
         # bind functions when page viewer shows or hides
         self.handler.set_funcs(str(self.pageViewerFrame) + "-hide", self._hide)
-        self.handler.add_values(str(self.pageViewerFrame)+"-hide", index=0, newpos=20)
+        self.handler.add_values(str(self.pageViewerFrame) + "-hide", index=0, newpos=20)
         self.handler.set_funcs(str(self.pageViewerFrame) + "-show", self._show)
-        self.handler.add_values(str(self.pageViewerFrame)+"-show", index=0)
+        self.handler.add_values(str(self.pageViewerFrame) + "-show", index=0)
 
         self.handler.set_funcs("jump-page", self.pageEditor.jump_to_page)
 
@@ -224,7 +231,7 @@ class PyditorApplication(tk.Frame):
     def jump_to_selection(self, *_, **__):
         """Move to the second tab on the sidebar"""
         self.sidebarTabs.select(1)
-    
+
     def _hide(self, index: int, newpos: int):
         """Function called when collapsible frame hides to relocate sash on newpos"""
         self.sashpos[index] = self.bodyPanel.sash_coord(index)
