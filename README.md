@@ -14,15 +14,18 @@
  <a href="https://github.com/3ricsonn/pyditor/blob/master/LICENSE">
   <img alt="GitHub" src="https://img.shields.io/github/license/3ricsonn/pyditor?color=blue&style=plastic">
  </a>
- <img src="https://img.shields.io/badge/Language-Python-yellow?style=plastic&logo=python" >
+ <a href="https://www.python.org/">
+  <img src="https://img.shields.io/badge/Python-3.8 | 3.9-blue?style=plastic&logo=python&logoColor=yellow">
+</a>
 </p>
 
 <h1 align="center">Pyditor – Small PDF-Editor written in Python</h1>
 
-Pyditor is a small pdf-editor to open and rearrange pages in pdf-files. 
+Pyditor is a small pdf-editor to open and rearrange pages in a pdf-files. 
 
 ## Quick Start
-### Installation
+### Installing
+Clone this GitHub repository via:
 ```bash
 git clone https://github.com/3ricsonn/pyditor.git
 ```
@@ -44,3 +47,9 @@ Usage: pyditor [OPTIONS] [-f file-path]
         File editing
             -f                  Start the editor with the given document
 ```
+### Uninstalling
+To remove the installed dependecies type:
+```bash
+pip uninstall -r requirements.txt
+```
+Further, you can delete the zip-file and the directory of the application
