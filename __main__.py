@@ -72,7 +72,7 @@ for opt, arg in opts:
                     --version           Print program version and exit
                     --copyright         Print copyright information
                 File editing
-                    -f                  Start the editor with the given document
+                    -f  PATH            Start the editor with the given document path
             """
         )
         sys.exit()

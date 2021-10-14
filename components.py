@@ -2,7 +2,6 @@ import re
 import tkinter as tk
 from tkinter import messagebox
 
-import fitz  # PyMuPDF
 from PIL import Image
 
 from widgets import PageViewer
@@ -10,34 +9,7 @@ from widgets import PageViewer
 __all__ = ["SidePageViewer", "SideSelectionViewer", "PagesEditor"]
 
 
-class SidePageViewer(PageViewer):
-    """Scrollable Frame to display and select a single page of a pdf document"""
-
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-
-        # related page viewer to display selected page
-        # self._related: PagesEditor = None
-
-    def _leave_frame(self, _event):
-        super()._leave_frame(_event)
-        self.clear_selection()
-
-    # def add_page_viewer_relation(self, widget):
-    #     """Add page viewer to be able to jump to a selected page"""
-    #     self._related = widget
-
-    def load_pages(self) -> None:
-        """Displays all pages of the document vertically"""
-        super().load_pages()
-
-        for i, label in enumerate(self.pages, 1):
-            # add title to page
-            label.config(text=f"Page {i}")
-
-            # bind an event whenever a page is clicked to select it
-            label.bind("<Button-1>", func=self.select_page)
-
+class OneColumnPageViewer(PageViewer):
     def convert_page(self, page, scaling):
         """Covert a given page object to a displayable Image and resize it"""
         pix = page.get_pixmap()
@@ -49,12 +21,30 @@ class SidePageViewer(PageViewer):
         # rescale image to fit in the frame
         # print(f"((({self.canvas_width} - {self.offset_horizontal}) / {self.column}) / {img.size[0]})")
         scale = (((self.canvas_width - self.offset_horizontal) / self.column) / img.size[0])
-        # print(scale)
         scale *= scaling
 
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 
         return scaleImg
+
+
+class SidePageViewer(OneColumnPageViewer):
+    """Scrollable Frame to display and select a single page of a pdf document"""
+
+    def _leave_frame(self, _event):
+        super()._leave_frame(_event)
+        self.clear_selection()
+
+    def load_pages(self) -> None:
+        """Displays all pages of the document vertically"""
+        super().load_pages()
+
+        for i, label in enumerate(self.page_label, 1):
+            # add title to page
+            label.config(text=f"Page {i}")
+
+            # bind an event whenever a page is clicked to select it
+            label.bind("<Button-1>", func=self.select_page)
 
     def clear_selection(self) -> None:
         """Remove selected pages from selection and reset page background"""
@@ -69,12 +59,48 @@ class SidePageViewer(PageViewer):
 
         # jump with added page viewer to selected page
         self.handler.call("jump-page", event.widget.id)
-        # if self._related:
-        #     self._related.jump_to_page(event.widget.id)
 
 
-class SideSelectionViewer(PageViewer):
-    pass
+class SideSelectionViewer(OneColumnPageViewer):
+    def __init__(self, parent, *args, **kwargs):
+        super(OneColumnPageViewer, self).__init__(parent, *args, **kwargs)
+
+        self.handler.set_funcs("get-selection", self.get_selection)
+
+        # == right-click popup menu ==
+        self.popupMenu = tk.Menu(master=self.canvas, tearoff=False)
+        self.popupMenu.add_command(label="Remove Page")
+        self.popupMenu.add_separator()
+        self.popupMenu.add_command(label="Clear", command=self.clear_all)
+
+    def set_document(self):
+        self.clear_all()
+
+    def _enter_frame(self, _event):
+        super()._enter_frame(_event)
+        self.canvas.bind_all("<Button-3>", self.popup)
+
+    def _leave_frame(self, _event):
+        super()._leave_frame(_event)
+        self.canvas.unbind_all("<Button-3>")
+
+    def popup(self, event):
+        self.popupMenu.tk_popup(event.x_root, event.y_root)
+
+    def get_selection(self, selection):
+        sorted(selection)
+        for page_num in set(selection):
+            self.pages.append(
+                self.handler.get_values("document")[page_num]
+            )
+
+        self.load_pages()
+
+    def clear_all(self):
+        for widget in self.viewPort.winfo_children():
+            widget.destroy()
+
+        self.pages.clear()
 
 
 class PagesEditor(PageViewer):
@@ -122,7 +148,8 @@ class PagesEditor(PageViewer):
         self.popupMenu.tk_popup(event.x_root, event.y_root)
 
     def copy_selected(self):
-        pass
+        # self.handler.print()
+        self.handler.call("get-selection", value_hook="selection")
 
     def cut_selected(self):
         pass
@@ -133,7 +160,7 @@ class PagesEditor(PageViewer):
     def load_pages(self) -> None:
         super().load_pages()
 
-        for page in self.pages:
+        for page in self.page_label:
             page.bind("<Button-1>", func=self.select_page)
             page.bind("<Control-Button-1>", func=self.select_pages_control)
             page.bind("<Shift-Button-1>", func=self.select_pages_shift)
@@ -167,7 +194,8 @@ class PagesEditor(PageViewer):
 
         for widget in self.viewPort.winfo_children()[start:end + 1]:
             widget.config(bg="blue")
-            self.handler.get_values("selection").append(widget.id)
+            if widget.id != self.last_selected:  # ensures no duplicates
+                self.handler.get_values("selection").append(widget.id)
 
     def clear_selection(self):
         for widget in self.viewPort.winfo_children():
@@ -191,7 +219,7 @@ class PagesEditor(PageViewer):
 
     def jump_to_page(self, page: int) -> None:
         """Jumps with scrollbar to given page"""
-        if_overlap = 1 if len(self.pages) % self.column != 0 else 0
+        if_overlap = 1 if len(self.page_label) % self.column != 0 else 0
         self.canvas.yview_moveto(
-            str((page // self.column) / (len(self.pages) // self.column + if_overlap))
+            str((page // self.column) / (len(self.page_label) // self.column + if_overlap))
         )

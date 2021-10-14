@@ -3,7 +3,6 @@ import itertools
 import platform
 import tkinter as tk
 
-import fitz  # PyMuPDF
 from PIL import Image, ImageTk
 
 __all__ = ["ScrollFrame", "CollapsibleFrame", "PageViewer"]
@@ -22,6 +21,7 @@ class ScrollFrame(tk.Frame):
     def __init__(self, parent, event_handler, *args, **kwargs):
         super().__init__(parent)
         self.handler = event_handler
+        self.handler.set_funcs("set-document", self.set_document)
 
         self.canvas = tk.Canvas(self, borderwidth=0, background="green")
         self.viewPort = tk.Frame(
@@ -184,6 +184,9 @@ class ScrollFrame(tk.Frame):
         # Apply all non-popped options to frame
         self.viewPort.configure(**options)
 
+    def set_document(self, *args, **kwargs):
+        pass
+
 
 # *********************** #
 # Collapsable Frame Class #
@@ -196,6 +199,7 @@ class CollapsibleFrame(tk.Frame):
     ):
         super().__init__(master=parent, *args, **kwargs)
         self.handler = event_handler
+        self.handler.set_funcs("set-document", self.set_document)
 
         # == store attributes ==
         # stores the state the frame starts in
@@ -215,11 +219,6 @@ class CollapsibleFrame(tk.Frame):
         else:
             raise ValueError("Attribute align must be ether left or right")
 
-        # function called when frame hides
-        # self._func_hide = lambda: None
-        # function called when frame shows
-        # self._func_show = lambda: None
-
         # == Components ==
         # -- declare components of the widget --
         self.frame = tk.Frame(master=self)
@@ -229,23 +228,13 @@ class CollapsibleFrame(tk.Frame):
 
         # -- display components --
         self._hideButton.pack(fill="y", side=self.align[1])
-        # self.handler.call(hook=str(self) + "-" + self.state, value_hook=str(self) + "-" + self.state)
         if self.state == "show":
             self._show()
         else:
             self._hide()
 
-    # def bind_hide_func(self, func) -> None:
-    #   """Bind a function when frame hides and calls it"""
-    #   self._func_hide = func
-    #   if self.state == "hide":
-    #       self._func_hide()
-
-    # def bind_show_func(self, func) -> None:
-    #    """Bind a function when frame hides and calls it"""
-    #    self._func_show = func
-    #    if self.state == "show":
-    #        self._func_show()
+    def set_document(self, *args, **kwargs):
+        pass
 
     def _hide(self) -> None:
         """Hide content expects the button"""
@@ -270,7 +259,7 @@ class PageViewer(ScrollFrame):
     """Scrollable Frame to display pages of a pdf document"""
 
     def __init__(self, parent, *args, **kwargs):
-        self.pages = []
+        self.page_label = []
 
         if "column" in kwargs:
             self.column = kwargs["column"]
@@ -286,15 +275,21 @@ class PageViewer(ScrollFrame):
         self.offset_horizontal = 10
 
         super().__init__(parent, *args, **kwargs)
+        self.pages = []
+        self.handler.add_funcs("set-document", self.set_document)
 
     @property
     def scaling(self):
         return self._scaling
 
+    def set_document(self):
+        self.pages = self.handler.get_values("document")
+        self.load_pages()
+
     def load_pages(self) -> None:
         """Displays all pages of the document vertically"""
-        document = self.handler.get_values("document")
-        if len(document) == 0:
+
+        if len(self.pages) == 0:
             return None
 
         # clear viewPort frame
@@ -306,8 +301,8 @@ class PageViewer(ScrollFrame):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             imgs = executor.map(
                 self.convert_page,
-                document,
-                itertools.repeat(self.scaling, times=len(document)),
+                self.pages,
+                itertools.repeat(self.scaling, times=len(self.pages)),
             )
 
         for index, img in enumerate(imgs):
@@ -317,16 +312,16 @@ class PageViewer(ScrollFrame):
             labelImg = self.blit_page(tkImg, index)
 
             # append label to pages to later display whether its selected
-            self.pages.append(labelImg)
+            self.page_label.append(labelImg)
         return None
 
     # def update_vision(self):
     #     current = int(
-    #        self.canvas.yview()[1] * (len(self.pages) // self.column + 1) * self.column
+    #        self.canvas.yview()[1] * (len(self.page_label) // self.column + 1) * self.column
     #     )
     #     if self.current != current:
     #         self.update_pages(self.document)
-    #         self.current = current        self.document = document
+    #         self.current = current
 
     def update_pages(self):
         """Recreate images and blit it on existing labels"""
@@ -344,8 +339,8 @@ class PageViewer(ScrollFrame):
             # convert to a displayable tk-image
             tkImg = ImageTk.PhotoImage(img)
 
-            self.pages[index].config(image=tkImg)
-            self.pages[index].image = tkImg
+            self.page_label[index].config(image=tkImg)
+            self.page_label[index].image = tkImg
 
     def convert_page(self, page, scaling):
         """Covert a given page object to a displayable Image and resize it"""
@@ -382,7 +377,7 @@ class PageViewer(ScrollFrame):
 
         # place label in frame
         if self.column == 1:
-            labelImg.pack(pady=5, padx=5)
+            labelImg.pack(pady=5, padx=7)
         else:
             labelImg.grid(
                 row=index // self.column,
@@ -411,17 +406,20 @@ class PageViewer(ScrollFrame):
         """Removes all widget within the frame"""
         for widget in self.viewPort.winfo_children():
             widget.destroy()
-        self.pages.clear()
+        self.page_label.clear()
 
 
 if __name__ == "__main__":
+    from app import EventHandler
+    handler = EventHandler()
+
     root = tk.Tk()
     root.title("test scrollbar frame")
 
     toolbarPanel = tk.PanedWindow(master=root, orient=tk.HORIZONTAL)
     toolbarPanel.pack(expand=True, fill="both")
 
-    frame = ScrollFrame(parent=toolbarPanel)
+    frame = ScrollFrame(parent=toolbarPanel, event_handler=handler)
     toolbarPanel.add(frame)
 
     label = tk.Label(master=toolbarPanel, text="This is a Label")
