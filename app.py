@@ -12,22 +12,28 @@ __all__ = ["PyditorApplication"]
 
 
 class EventHandler:
+    """Centralised event-handler for communication between the components"""
     __functions = {}
     __values = {}
 
     def set_funcs(self, hook: str, *funcs):
+        """Stores given function(s) into a dictionary with given hook as key"""
         if hook in self.__functions:
             self.add_funcs(hook, *funcs)
         else:
             self.__functions[hook] = list(func for func in funcs)
 
     def add_funcs(self, hook: str, *funcs):
+        """Updates the dictionary with given function(s)"""
         self.__functions[hook] += list(func for func in funcs)
 
     def add_values(self, hook: str, *args, **kwargs):
+        """Stores given values(s) into a dictionary with given hook as key"""
         self.__values[hook] = args, kwargs
 
     def call(self, hook: str, *args, **kwargs):
+        """Calls function at the key 'hook" with ether the given arguments or/and\
+        values stored in itself at 'value_hook' """
         result = []
         # print(self.__functions[hook])
         try:
@@ -43,6 +49,7 @@ class EventHandler:
             raise ValueError("A function with this hook does not exists")
 
     def get_values(self, hook):
+        """Gets the value stored on the given hook"""
         if len(self.__values[hook][0]) == 0:
             if len(self.__values[hook][1]) == 0:
                 return None
@@ -57,8 +64,13 @@ class EventHandler:
             else:
                 return self.__values[hook]
 
-    def check(self, hook: str):
+    def check_value(self, hook: str) -> bool:
+        """Checks if a value at the given hook exists"""
         return hook in self.__values
+
+    def check_func(self, hook: str) -> bool:
+        """Checks if a function at the given hook exists"""
+        return hook in self.__functions
 
 
 class PyditorApplication(tk.Frame):
@@ -210,6 +222,7 @@ class PyditorApplication(tk.Frame):
         self.editorScalingSetting.bind("<Return>", self.update_editor)
 
     def jump_to_selection(self, *_, **__):
+        """Move to the second tab on the sidebar"""
         self.sidebarTabs.select(1)
     
     def _hide(self, index: int, newpos: int):

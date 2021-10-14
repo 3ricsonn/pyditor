@@ -185,6 +185,7 @@ class ScrollFrame(tk.Frame):
         self.viewPort.configure(**options)
 
     def set_document(self, *args, **kwargs):
+        """Placeholder is called when new document is opened"""
         pass
 
 
@@ -234,6 +235,7 @@ class CollapsibleFrame(tk.Frame):
             self._hide()
 
     def set_document(self, *args, **kwargs):
+        """Placeholder is called when new document is opened"""
         pass
 
     def _hide(self) -> None:
@@ -280,9 +282,11 @@ class PageViewer(ScrollFrame):
 
     @property
     def scaling(self):
+        """Placeholder for calculated scaling implementations"""
         return self._scaling
 
     def set_document(self):
+        """Fetches the new opened document"""
         self.pages = self.handler.get_values("document")
         self.load_pages()
 
