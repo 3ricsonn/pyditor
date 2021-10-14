@@ -184,7 +184,7 @@ class ScrollFrame(tk.Frame):
         # Apply all non-popped options to frame
         self.viewPort.configure(**options)
 
-    def set_document(self, *args, **kwargs):
+    def set_document(self):
         """Placeholder is called when new document is opened"""
         pass
 
@@ -219,7 +219,7 @@ class CollapsibleFrame(tk.Frame):
         if "alignment" in kwargs:
             if kwargs["alignment"] == "left":
                 self.align = ("left", "right")
-            elif kwargs["alignment"]  == "right":
+            elif kwargs["alignment"] == "right":
                 self.align = ("right", "left")
             else:
                 raise ValueError("Attribute align must be ether left or right")
@@ -369,7 +369,7 @@ class PageViewer(ScrollFrame):
             scale = (self.canvas_height - self.offset_horizontal) / img.size[1]
         else:
             scale = (
-                        (self.canvas_width - self.offset_horizontal) / self.column
+                            (self.canvas_width - self.offset_horizontal) / self.column
                     ) / img.size[0]
 
         scale *= scaling
@@ -425,6 +425,7 @@ class PageViewer(ScrollFrame):
 
 if __name__ == "__main__":
     from app import EventHandler
+
     handler = EventHandler()
 
     root = tk.Tk()
