@@ -2,7 +2,7 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
-from typing import Dict, List, Any, Callable, Tuple
+from typing import Dict, List, Any, Callable, Collection
 
 import fitz  # PyMuPDF
 
@@ -16,18 +16,18 @@ class EventHandler:
     """Centralised event-handler for communication between the components"""
 
     __functions: Dict[str, List[Callable]] = {}
-    __values: Dict[str, Tuple[List[Any], Dict[str, Any]]] = {}
+    __values: Dict[str, List[Collection[Any]]] = {}
 
     def set_funcs(self, hook: str, *funcs):
         """Stores given function(s) into a dictionary with given hook as key"""
         if hook in self.__functions:
             self.add_funcs(hook, *funcs)
         else:
-            self.__functions[hook] = list(func for func in funcs)
+            self.__functions[hook] = list(funcs)
 
     def add_funcs(self, hook: str, *funcs):
         """Updates the dictionary with given function(s)"""
-        self.__functions[hook] += list(func for func in funcs)
+        self.__functions[hook].append(*funcs)
 
     def add_values(self, hook: str, *args, **kwargs):
         """Stores given values(s) into a dictionary with given hook as key"""
@@ -37,12 +37,13 @@ class EventHandler:
         """Calls function at the key 'hook" with ether the given arguments or/and
         values stored in itself at 'value_hook' """
         result = []
+        args = [*args]
         # print(self.__functions[hook])
         try:
             for func in self.__functions[hook]:
                 if "value_hook" in kwargs:
                     value_hook = kwargs.pop("value_hook")
-                    args += self.__values[value_hook][0]
+                    args.append(*self.__values[value_hook][0])
                     kwargs.update(self.__values[value_hook][1])
                 result.append(func(*args, **kwargs))
 
