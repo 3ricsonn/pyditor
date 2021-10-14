@@ -23,7 +23,7 @@ class ScrollFrame(tk.Frame):
         super().__init__(parent)
         self.handler = event_handler
 
-        self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")
+        self.canvas = tk.Canvas(self, borderwidth=0, background="green")
         self.viewPort = tk.Frame(
             self.canvas, background="#ffffff"
         )  # place a frame on the canvas, this frame will hold the child widgets
@@ -70,11 +70,6 @@ class ScrollFrame(tk.Frame):
         tk.Grid.columnconfigure(self, 0, weight=1)
         tk.Grid.rowconfigure(self, 1, weight=0)
         tk.Grid.columnconfigure(self, 1, weight=0)
-
-        self.update()
-        self.canvas.update()
-        assert bool(self.canvas.winfo_exists()) is True
-        assert bool(self.canvas.winfo_ismapped()) is True
 
     def _on_frame_change(self, _event):
         """Function called when frame size changed"""
@@ -221,9 +216,9 @@ class CollapsibleFrame(tk.Frame):
             raise ValueError("Attribute align must be ether left or right")
 
         # function called when frame hides
-        self._func_hide = lambda: None
+        # self._func_hide = lambda: None
         # function called when frame shows
-        self._func_show = lambda: None
+        # self._func_show = lambda: None
 
         # == Components ==
         # -- declare components of the widget --
@@ -235,16 +230,16 @@ class CollapsibleFrame(tk.Frame):
         # -- display components --
         self._hideButton.pack(fill="y", side=self.align[1])
         # self.handler.call(hook=str(self) + "-" + self.state, value_hook=str(self) + "-" + self.state)
-        # if self.state == "show":
-        #     self._show()
-        # else:
-        #     self._hide()
+        if self.state == "show":
+            self._show()
+        else:
+            self._hide()
 
     # def bind_hide_func(self, func) -> None:
     #   """Bind a function when frame hides and calls it"""
     #   self._func_hide = func
     #   if self.state == "hide":
-    #       self._func_hide()#
+    #       self._func_hide()
 
     # def bind_show_func(self, func) -> None:
     #    """Bind a function when frame hides and calls it"""
@@ -254,13 +249,16 @@ class CollapsibleFrame(tk.Frame):
 
     def _hide(self) -> None:
         """Hide content expects the button"""
-        self.handler.call(hook=str(self) + "-hide", value_hook=str(self) + "-hide")
+        if self.handler.check(hook=str(self) + "-hide"):
+            self.handler.call(hook=str(self) + "-hide", value_hook=str(self) + "-hide")
         self.frame.pack_forget()
         self._hideButton.config(text=self.char[1], command=self._show)
 
     def _show(self) -> None:
         """Reshow content"""
-        self.handler.call(hook=str(self) + "-show", value_hook=str(self) + "-show")
+        if self.handler.check(hook=str(self) + "-show"):
+            self.handler.call(hook=str(self) + "-show", value_hook=str(self) + "-show")
+        # self.handler.check(hook=str(self) + "-show")
         self.frame.pack(fill="both", side=self.align[0])
         self._hideButton.config(text=self.char[0], command=self._hide)
 
@@ -302,7 +300,6 @@ class PageViewer(ScrollFrame):
         # clear viewPort frame
         self.clear()
 
-        assert bool(self.canvas.winfo_ismapped()) is True
         # get page viewer properties
         self.get_properties()
 
@@ -363,10 +360,8 @@ class PageViewer(ScrollFrame):
             scale = (self.canvas_height - self.offset_horizontal) / img.size[1]
         else:
             scale = (
-                            (self.canvas_width - self.offset_horizontal) / self.column
+                        (self.canvas_width - self.offset_horizontal) / self.column
                     ) / img.size[0]
-
-        # print(scale)
 
         scale *= scaling
 
@@ -401,9 +396,8 @@ class PageViewer(ScrollFrame):
     def get_properties(self):
         """Function setting editor properties later used to scale the pages"""
         # get page viewer properties
+        self.canvas.update()
         self.canvas_width = self.canvas.winfo_width()
-        print(bool(self.canvas.winfo_ismapped()))
-        print(self.canvas_width)
         self.canvas_height = self.canvas.winfo_height()
 
         # get width and height of the scrollbar to later calculate the offset

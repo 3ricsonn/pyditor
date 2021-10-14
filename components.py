@@ -47,9 +47,10 @@ class SidePageViewer(PageViewer):
         img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
 
         # rescale image to fit in the frame
-        # print(f"((({self.canvas_width} - {16}) / {self.column}) / {img.size[0]})")
-        scale = (((self.canvas_width - 16) / self.column) / img.size[0]) * scaling
-        # scale *= scaling
+        # print(f"((({self.canvas_width} - {self.offset_horizontal}) / {self.column}) / {img.size[0]})")
+        scale = (((self.canvas_width - self.offset_horizontal) / self.column) / img.size[0])
+        # print(scale)
+        scale *= scaling
 
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
 

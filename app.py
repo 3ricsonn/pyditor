@@ -21,15 +21,19 @@ class EventHandler:
     def add_values(self, hook: str, *args, **kwargs):
         self.__values[hook] = args, kwargs
 
-    def call(self, hook: str, value_hook="", *args, **kwargs):
+    def call(self, hook: str, *args, **kwargs):
         result = []
+        # try:
         for func in self.__functions[hook]:
-            if value_hook:
+            if "value_hook" in kwargs:
+                value_hook = kwargs.pop("value_hook")
                 args += self.__values[value_hook][0]
                 kwargs += self.__values[value_hook][1]
             result.append(func(*args, **kwargs))
 
-        return result if len(result) > 1 else result[0]
+            return result if len(result) > 1 else result[0]
+        # except KeyError:
+        #     raise ValueError("A function with this hook does not exists")
 
     def get_values(self, hook):
         if len(self.__values[hook][0]) == 0:
@@ -48,6 +52,9 @@ class EventHandler:
 
     def print(self):
         print(self.__values)
+
+    def check(self, hook: str):
+        return hook in self.__values
 
 
 class PyditorApplication(tk.Frame):
@@ -191,6 +198,7 @@ class PyditorApplication(tk.Frame):
         # self.pageViewerFrame.bind_hide_func(func=lambda: self._hide(index=0, newpos=20))
         self.handler.add_funcs(str(self.pageViewerFrame)+"-show", self._show)
         self.handler.add_values(str(self.pageViewerFrame)+"-show", index=0)
+        # self.handler.print()
         # self.pageViewerFrame.bind_show_func(func=lambda: self._show(index=0))
         # self.pageViewerTab.add_page_viewer_relation(widget=self.pageEditor)
 
@@ -236,7 +244,6 @@ class PyditorApplication(tk.Frame):
     def set_document(self, doc: str) -> None:
         """Create document from path and load pages onto the viewer-frames"""
         self.handler.add_values("document", fitz.Document(doc))
-        # self.handler.print()
 
         self.pageViewerTab.load_pages()
         self.pageEditor.load_pages()
