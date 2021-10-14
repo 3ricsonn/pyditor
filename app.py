@@ -2,6 +2,7 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
+from typing import Dict, List, Any, Callable
 
 import fitz  # PyMuPDF
 
@@ -13,8 +14,8 @@ __all__ = ["PyditorApplication"]
 
 class EventHandler:
     """Centralised event-handler for communication between the components"""
-    __functions = {}
-    __values = {}
+    __functions: Dict[str, List[Callable]] = {}
+    __values: Dict[str, List[List[Any], Dict[str, Any]]] = {}
 
     def set_funcs(self, hook: str, *funcs):
         """Stores given function(s) into a dictionary with given hook as key"""
