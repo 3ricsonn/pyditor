@@ -2,7 +2,7 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
-from typing import Dict, List, Any, Callable
+from typing import Dict, List, Any, Callable, Tuple
 
 import fitz  # PyMuPDF
 
@@ -14,8 +14,9 @@ __all__ = ["PyditorApplication"]
 
 class EventHandler:
     """Centralised event-handler for communication between the components"""
+
     __functions: Dict[str, List[Callable]] = {}
-    __values: Dict[str, List[List[Any], Dict[str, Any]]] = {}
+    __values: Dict[str, Tuple[List[Any], Dict[str, Any]]] = {}
 
     def set_funcs(self, hook: str, *funcs):
         """Stores given function(s) into a dictionary with given hook as key"""
@@ -30,10 +31,10 @@ class EventHandler:
 
     def add_values(self, hook: str, *args, **kwargs):
         """Stores given values(s) into a dictionary with given hook as key"""
-        self.__values[hook] = args, kwargs
+        self.__values[hook] = [args, kwargs]
 
     def call(self, hook: str, *args, **kwargs):
-        """Calls function at the key 'hook" with ether the given arguments or/and\
+        """Calls function at the key 'hook" with ether the given arguments or/and
         values stored in itself at 'value_hook' """
         result = []
         # print(self.__functions[hook])
@@ -115,7 +116,9 @@ class PyditorApplication(tk.Frame):
 
         # == components definitions ==
         # -- page viewer --
-        self.pageViewerFrame = CollapsibleFrame(parent=self.bodyPanel, event_handler=self.handler)
+        self.pageViewerFrame = CollapsibleFrame(
+            parent=self.bodyPanel, event_handler=self.handler
+        )
         self.sidebarTabs = ttk.Notebook(master=self.pageViewerFrame.frame)
         self.handler.set_funcs("get-selection", self.jump_to_selection)
         self.pageViewerTab = SidePageViewer(
@@ -128,7 +131,11 @@ class PyditorApplication(tk.Frame):
         # -- document editor --
         self.editorFrame = tk.Frame(master=self.bodyPanel, bg="green")
         self.pageEditor = PagesEditor(
-            parent=self.editorFrame, event_handler=self.handler, column=2, scale=self.scaleVar, direction="both"
+            parent=self.editorFrame,
+            event_handler=self.handler,
+            column=2,
+            scale=self.scaleVar,
+            direction="both"
         )
 
         # frame to store setting widgets

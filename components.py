@@ -10,6 +10,8 @@ __all__ = ["SidePageViewer", "SideSelectionViewer", "PagesEditor"]
 
 
 class OneColumnPageViewer(PageViewer):
+    """Class for displaying pages on a side bar"""
+
     def convert_page(self, page, scaling):
         """Covert a given page object to a displayable Image and resize it"""
         pix = page.get_pixmap()
@@ -19,7 +21,7 @@ class OneColumnPageViewer(PageViewer):
         img = Image.frombytes(mode, [pix.width, pix.height], pix.samples)
 
         # rescale image to fit in the frame
-        # print(f"((({self.canvas_width} - {self.offset_horizontal}) / {self.column}) / {img.size[0]})")
+        # print(f"((({self.canvas_width} - {self.offset_horizontal}) / {self.column}) / {img.size[0]})")  # skipcq
         scale = (((self.canvas_width - self.offset_horizontal) / self.column) / img.size[0])
         scale *= scaling
 
@@ -32,6 +34,7 @@ class SidePageViewer(OneColumnPageViewer):
     """Scrollable Frame to display and select a single page of a pdf document"""
 
     def _leave_frame(self, _event):
+        """Clears selection after mouse left widget"""
         super()._leave_frame(_event)
         self.clear_selection()
 
@@ -63,8 +66,9 @@ class SidePageViewer(OneColumnPageViewer):
 
 class SideSelectionViewer(OneColumnPageViewer):
     """View all selected pages to later past in main document"""
+
     def __init__(self, parent, *args, **kwargs):
-        super(OneColumnPageViewer, self).__init__(parent, *args, **kwargs)
+        super().__init__(parent, *args, **kwargs)
 
         self.handler.set_funcs("get-selection", self.get_selection)
 
@@ -229,7 +233,8 @@ class PagesEditor(PageViewer):
         if not re.match("^[0-9]{1,3}", scale):
             messagebox.showerror(
                 title="Invalid scaling",
-                message="You entered an invalid scaling factor. Please make sure you entered a number."
+                message="You entered an invalid scaling factor. "
+                        "Please make sure you entered a number."
             )
             return 1
 

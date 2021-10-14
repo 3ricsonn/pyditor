@@ -196,29 +196,39 @@ class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
     def __init__(
-            self, parent, event_handler, state="show", char=("<", ">"), align="left", *args, **kwargs
+            self, parent, event_handler, *args, **kwargs
     ):
+        # == attributes ==
+        # state in which the frame starts in
+        if "state" in kwargs:
+            if kwargs["state"] in ("show", "hide"):
+                self.state = kwargs["state"]
+            else:
+                raise ValueError("Attribute state must be ether show or hide")
+            kwargs.pop("state")
+        else:
+            self.state = "show"
+
+        # stores the characters shown on the button
+        if "char" in kwargs:
+            self.char: tuple = kwargs["char"]
+        else:
+            self.char = ("<", ">")
+
+        # stores the order of frame and button
+        if "alignment" in kwargs:
+            if kwargs["alignment"] == "left":
+                self.align = ("left", "right")
+            elif kwargs["alignment"]  == "right":
+                self.align = ("right", "left")
+            else:
+                raise ValueError("Attribute align must be ether left or right")
+        else:
+            self.align = ("left", "right")
+
         super().__init__(master=parent, *args, **kwargs)
         self.handler = event_handler
         self.handler.set_funcs("set-document", self.set_document)
-
-        # == store attributes ==
-        # stores the state the frame starts in
-        if state in ("show", "hide"):
-            self.state = state
-        else:
-            raise ValueError("Attribute state must be ether show or hide")
-
-        # stores the characters shown on the button
-        self.char: tuple = char
-
-        # stores the order of frame and button
-        if align == "left":
-            self.align = ("left", "right")
-        elif align == "right":
-            self.align = ("right", "left")
-        else:
-            raise ValueError("Attribute align must be ether left or right")
 
         # == Components ==
         # -- declare components of the widget --
@@ -234,20 +244,20 @@ class CollapsibleFrame(tk.Frame):
         else:
             self._hide()
 
-    def set_document(self, *args, **kwargs):
+    def set_document(self):
         """Placeholder is called when new document is opened"""
         pass
 
     def _hide(self) -> None:
         """Hide content expects the button"""
-        if self.handler.check(hook=str(self) + "-hide"):
+        if self.handler.check_value(hook=str(self) + "-hide"):
             self.handler.call(hook=str(self) + "-hide", value_hook=str(self) + "-hide")
         self.frame.pack_forget()
         self._hideButton.config(text=self.char[1], command=self._show)
 
     def _show(self) -> None:
         """Reshow content"""
-        if self.handler.check(hook=str(self) + "-show"):
+        if self.handler.check_value(hook=str(self) + "-show"):
             self.handler.call(hook=str(self) + "-show", value_hook=str(self) + "-show")
         # self.handler.check(hook=str(self) + "-show")
         self.frame.pack(fill="both", side=self.align[0])
