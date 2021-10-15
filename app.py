@@ -58,9 +58,9 @@ class EventHandler:
             if len(self.__values[hook][1]) == 0:
                 return None
             return self.__values[hook][1]
-        elif len(self.__values[hook][0]) == 1:
-            if len(self.__values[hook][1]) == 0:
-                return self.__values[hook][0][0]
+
+        elif len(self.__values[hook][0]) == 1 and len(self.__values[hook][1]) == 0:
+            return self.__values[hook][0][0]
 
         if len(self.__values[hook][1]) == 0:
             return self.__values[hook][0]
