@@ -300,7 +300,6 @@ class PageViewer(ScrollFrame):
 
     def load_pages(self) -> None:
         """Displays all pages of the document vertically"""
-
         if len(self.pages) == 0:
             return None
 
