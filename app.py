@@ -167,8 +167,7 @@ class PyditorApplication(tk.Frame):
 
         if exc_type:
             raise exc_value
-        else:
-            sys.exit(0)
+        sys.exit(0)
 
     def load_components(self) -> None:
         """Load the components for page-viewer"""
