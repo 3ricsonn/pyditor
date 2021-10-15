@@ -168,11 +168,9 @@ class PagesEditor(PageViewer):
 
     def cut_selected(self):
         """Sends selected pages to selection viewer and removes them"""
-        pass
 
     def past_selected(self):
         """Gets pages from selection viewer and pastes them into the document"""
-        pass
 
     def load_pages(self) -> None:
         """Binds selection functionality to pages"""
