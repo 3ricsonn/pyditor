@@ -195,9 +195,7 @@ class ScrollFrame(tk.Frame):
 class CollapsibleFrame(tk.Frame):
     """A Collapsible Frame Class"""
 
-    def __init__(
-            self, parent, event_handler, *args, **kwargs
-    ):
+    def __init__(self, parent, event_handler, *args, **kwargs):
         # == attributes ==
         # state in which the frame starts in
         if "state" in kwargs:
@@ -369,8 +367,8 @@ class PageViewer(ScrollFrame):
             scale = (self.canvas_height - self.offset_horizontal) / img.size[1]
         else:
             scale = (
-                            (self.canvas_width - self.offset_horizontal) / self.column
-                    ) / img.size[0]
+                (self.canvas_width - self.offset_horizontal) / self.column
+            ) / img.size[0]
 
         scale *= scaling
 
@@ -411,9 +409,13 @@ class PageViewer(ScrollFrame):
 
         # get width and height of the scrollbar to later calculate the offset
         # also subtract 10 for padding between pages
-        if self.yscrollbar.winfo_ismapped():  # test if a vertical scrollbar is displayed
+        if (
+            self.yscrollbar.winfo_ismapped()
+        ):  # test if a vertical scrollbar is displayed
             self.offset_horizontal = self.yscrollbar.winfo_width() + 10
-        if self.xscrollbar.winfo_ismapped():  # test if a horizontal scrollbar is displayed
+        if (
+            self.xscrollbar.winfo_ismapped()
+        ):  # test if a horizontal scrollbar is displayed
             self.offset_vertical = self.xscrollbar.winfo_height() + 10
 
     def clear(self) -> None:
