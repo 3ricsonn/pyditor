@@ -186,6 +186,7 @@ class ScrollFrame(tk.Frame):
 
     def set_document(self):
         """Placeholder is called when new document is opened"""
+        raise NotImplementedError()
 
 
 # *********************** #
@@ -243,6 +244,7 @@ class CollapsibleFrame(tk.Frame):
 
     def set_document(self):
         """Placeholder is called when new document is opened"""
+        raise NotImplementedError()
 
     def _hide(self) -> None:
         """Hide content expects the button"""
