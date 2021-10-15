@@ -39,13 +39,12 @@ class EventHandler:
         values stored in itself at 'value_hook'
         """
         result = []
-        args = [*args]
         # print(self.__functions[hook])
         try:
             for func in self.__functions[hook]:
                 if "value_hook" in kwargs:
                     value_hook = kwargs.pop("value_hook")
-                    args.append(*self.__values[value_hook][0])
+                    args = (*self.__values[value_hook][0], )
                     kwargs.update(self.__values[value_hook][1])
                 result.append(func(*args, **kwargs))
 
