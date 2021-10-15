@@ -57,16 +57,14 @@ class EventHandler:
         if len(self.__values[hook][0]) == 0:
             if len(self.__values[hook][1]) == 0:
                 return None
-            else:
-                return self.__values[hook][1]
-        elif len(self.__values[hook][0]) == 1:
-            if len(self.__values[hook][1]) == 0:
-                return self.__values[hook][0][0]
-        else:
-            if len(self.__values[hook][1]) == 0:
-                return self.__values[hook][0]
-            else:
-                return self.__values[hook]
+            return self.__values[hook][1]
+
+        if len(self.__values[hook][0]) == 1 and len(self.__values[hook][1]) == 0:
+            return self.__values[hook][0][0]
+
+        if len(self.__values[hook][1]) == 0:
+            return self.__values[hook][0]
+        return self.__values[hook]
 
     def check_value(self, hook: str) -> bool:
         """Checks if a value at the given hook exists"""
