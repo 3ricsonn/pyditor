@@ -44,7 +44,7 @@ class EventHandler:
             for func in self.__functions[hook]:
                 if "value_hook" in kwargs:
                     value_hook = kwargs.pop("value_hook")
-                    args = (*self.__values[value_hook][0], )
+                    args = (*self.__values[value_hook][0],)
                     kwargs.update(self.__values[value_hook][1])
                 result.append(func(*args, **kwargs))
 
@@ -137,7 +137,7 @@ class PyditorApplication(tk.Frame):
             event_handler=self.handler,
             column=2,
             scale=self.scaleVar,
-            direction="both"
+            direction="both",
         )
 
         # frame to store setting widgets
@@ -221,9 +221,9 @@ class PyditorApplication(tk.Frame):
         # -- page viewer --
         # bind functions when page viewer shows or hides
         self.handler.set_funcs(str(self.pageViewerFrame) + "-hide", self._hide)
-        self.handler.add_values(str(self.pageViewerFrame)+"-hide", index=0, newpos=20)
+        self.handler.add_values(str(self.pageViewerFrame) + "-hide", index=0, newpos=20)
         self.handler.set_funcs(str(self.pageViewerFrame) + "-show", self._show)
-        self.handler.add_values(str(self.pageViewerFrame)+"-show", index=0)
+        self.handler.add_values(str(self.pageViewerFrame) + "-show", index=0)
 
         self.handler.set_funcs("jump-page", self.pageEditor.jump_to_page)
 
