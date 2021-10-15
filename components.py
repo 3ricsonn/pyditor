@@ -22,9 +22,7 @@ class OneColumnPageViewer(PageViewer):
 
         # rescale image to fit in the frame
         # print(f"((({self.canvas_width} - {self.offset_horizontal}) / {self.column}) / {img.size[0]})")  # skipcq
-        scale = ((self.canvas_width - self.offset_horizontal) / self.column) / img.size[
-            0
-        ]
+        scale = ((self.canvas_width - self.offset_horizontal) / self.column) / img.size[0]
         scale *= scaling
 
         scaleImg = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
