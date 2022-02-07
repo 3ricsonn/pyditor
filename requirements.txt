@@ -1,2 +1,2 @@
-PyMuPDF==1.19.1
+PyMuPDF==1.19.5
 Pillow==9.0.1
