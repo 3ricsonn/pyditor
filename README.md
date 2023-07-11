@@ -21,6 +21,8 @@
 
 <h1 align="center">Pyditor – Small PDF-Editor written in Python</h1>
 
+### *this project is discontinued - but I am working in a new version: [PyDFCat](https://github.com/3ricsonn/PyDFCat)*
+
 Pyditor is a small pdf-editor to open and rearrange pages in a pdf-files. 
 
 ## Quick Start
